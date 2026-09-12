@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Attention Test - Memora{% endblock %}
+
+{% block content %}
+<div class="container game-container">
+    <div class="game-header">
+        <h1 data-i18n-key="game_attention_test_heading">👁️ Attention Test</h1>
+        <div class="difficulty-badge" id="difficulty-badge" data-i18n-key="difficulty_loading">🟡 Loading...</div>
+        <div class="game-stats">
+            <div class="stat">
+                <span class="stat-label" data-i18n-key="stat_round">Round:</span>
+                <span class="stat-value" id="round-count">1/8</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label" data-i18n-key="stat_correct">Correct:</span>
+                <span class="stat-value" id="correct-count">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label" data-i18n-key="stat_avg_reaction">Avg Reaction:</span>
+                <span class="stat-value" id="avg-reaction">-ms</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="attention-grid" id="attention-grid"></div>
+    
+    <div id="completion-screen" class="completion-screen" style="display: none;">
+        <div class="completion-card">
+            <h2 data-i18n-key="completion_great_job">🎉 Great Job!</h2>
+            <div class="score-display">
+                <div class="score-item">
+                    <span class="score-label" data-i18n-key="score_label">Score</span>
+                    <span class="score-value" id="final-score">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label" data-i18n-key="accuracy_label">Accuracy</span>
+                    <span class="score-value" id="final-accuracy">0%</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label" data-i18n-key="avg_reaction_label">Avg Reaction Time</span>
+                    <span class="score-value" id="final-avg-reaction">0ms</span>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-large" onclick="goToGamesHub()" data-i18n-key="btn_back_to_games">Back to Games</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pass user_id from Flask session to JavaScript
+    const USER_ID = {{ session.get('user_id', 'null') }};
+</script>
+<script src="{{ url_for('static', filename='js/attention_test.js') }}"></script>
+{% endblock %}

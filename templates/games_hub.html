@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Games - Memora{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1 data-i18n-key="games_hub_title">🎮 Games & Exercises</h1>
+        <p class="subtitle" data-i18n-key="games_hub_subtitle">Challenge your mind with these fun cognitive games</p>
+    </div>
+    
+    <div class="games-grid">
+        <a href="{{ url_for('games.memory_match_game') }}" class="game-card">
+            <div class="game-icon">🧠</div>
+            <h2 data-i18n-key="game_memory_match_title">Memory Match</h2>
+            <p class="game-description" data-i18n-key="game_memory_match_desc">
+                Flip cards to find matching pairs. Test your memory and concentration.
+            </p>
+            <button class="btn btn-primary btn-large" data-i18n-key="btn_play_now">Play Now</button>
+        </a>
+        
+        <a href="{{ url_for('games.attention_test_game') }}" class="game-card">
+            <div class="game-icon">👁️</div>
+            <h2 data-i18n-key="game_attention_test_title">Attention Test</h2>
+            <p class="game-description" data-i18n-key="game_attention_test_desc">
+                Find the odd one out and tap it as fast as you can. 
+            </p>
+            <button class="btn btn-primary btn-large" data-i18n-key="btn_play_now">Play Now</button>
+        </a>
+    </div>
+    
+    <div class="back-link">
+        <a href="{{ url_for('users.patient_home') }}" class="btn btn-secondary" data-i18n-key="btn_back_to_home">Back to Home</a>
+    </div>
+</div>
+{% endblock %}

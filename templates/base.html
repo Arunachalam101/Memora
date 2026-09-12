@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Memora{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Error & Loading Handler Module (Phase 9) -->
+    <script src="{{ url_for('static', filename='js/error_handler.js') }}"></script>
+    <!-- i18n Module for language switching (Phase 8) -->
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+</head>
+<body>
+    <!-- Pass user's preferred language to JavaScript (Phase 8) -->
+    {% if session.get('user_id') %}
+        <script>
+            const currentUserId = {{ session.get('user_id') }};
+            {% if user and user.preferred_language %}
+                window.userPreferredLanguage = "{{ user.preferred_language }}";
+            {% else %}
+                window.userPreferredLanguage = "en";
+            {% endif %}
+        </script>
+    {% endif %}
+    
+    {% if session.get('user_id') %}
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <h1 data-i18n-key="app_title">🧠 Memora</h1>
+            </div>
+            <ul class="navbar-menu">
+                <li><a href="{{ url_for('users.patient_home') }}" class="nav-link" data-i18n-key="nav_home">Home</a></li>
+                <li><a href="{{ url_for('users.games') }}" class="nav-link" data-i18n-key="nav_games">Games</a></li>
+                <li><a href="{{ url_for('users.caregiver_dashboard') }}" class="nav-link" data-i18n-key="nav_dashboard">Dashboard</a></li>
+                <li class="nav-separator"></li>
+                <li class="language-toggle-container">
+                    <span class="language-label">Language:</span>
+                    <button 
+                        class="language-toggle-btn{% if user and user.preferred_language == 'as' %} {% else %} active{% endif %}" 
+                        data-language-toggle="en"
+                        onclick="I18N.loadLanguage('en')"
+                        title="English"
+                        aria-label="Switch to English"
+                    >EN</button>
+                    <button 
+                        class="language-toggle-btn{% if user and user.preferred_language == 'as' %} active{% endif %}" 
+                        data-language-toggle="as"
+                        onclick="I18N.loadLanguage('as')"
+                        title="Assamese"
+                        aria-label="Switch to Assamese"
+                    >অส</button>
+                </li>
+                <li><a href="{{ url_for('users.logout') }}" class="nav-link logout-link" data-i18n-key="nav_logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p data-i18n-key="footer_copyright">&copy; 2026 Memora — Cognitive Support for Dementia Care (SIH26003)</p>
+    </footer>
+</body>
+</html>

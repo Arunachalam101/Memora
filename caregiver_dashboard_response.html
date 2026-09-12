@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Memora</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Error & Loading Handler Module (Phase 9) -->
+    <script src="/static/js/error_handler.js"></script>
+    <!-- i18n Module for language switching (Phase 8) -->
+    <script src="/static/js/i18n.js"></script>
+</head>
+<body>
+    <!-- Pass user's preferred language to JavaScript (Phase 8) -->
+    
+    
+    
+
+    <main class="main-content">
+        
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h1 data-i18n-key="login_welcome_title">Welcome to Memora</h1>
+            <p data-i18n-key="login_welcome_subtitle">Cognitive support for dementia care</p>
+        </div>
+        
+        <form method="POST" action="/login" class="login-form">
+            <div class="form-group">
+                <label for="name" class="form-label" data-i18n-key="login_name_label">Your Name</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    class="form-input" 
+                    data-i18n-placeholder="login_name_placeholder"
+                    placeholder="Enter your name" 
+                    required 
+                    autofocus
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="pin" class="form-label" data-i18n-key="login_pin_label">PIN (Optional)</label>
+                <input 
+                    type="password" 
+                    id="pin" 
+                    name="pin" 
+                    class="form-input" 
+                    data-i18n-placeholder="login_pin_placeholder"
+                    placeholder="Leave blank if you don't have one"
+                >
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-large" data-i18n-key="login_button">Login</button>
+        </form>
+        
+        <div class="login-footer">
+            <p data-i18n-key="login_footer">This app is designed for caregivers and patients managing cognitive wellness.</p>
+        </div>
+    </div>
+</div>
+
+    </main>
+
+    <footer class="footer">
+        <p data-i18n-key="footer_copyright">&copy; 2026 Memora — Cognitive Support for Dementia Care (SIH26003)</p>
+    </footer>
+</body>
+</html>

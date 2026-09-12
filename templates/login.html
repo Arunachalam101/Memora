@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Memora{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h1 data-i18n-key="login_welcome_title">Welcome to Memora</h1>
+            <p data-i18n-key="login_welcome_subtitle">Cognitive support for dementia care</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('users.login_post') }}" class="login-form">
+            <div class="form-group">
+                <label for="name" class="form-label" data-i18n-key="login_name_label">Your Name</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    class="form-input" 
+                    data-i18n-placeholder="login_name_placeholder"
+                    placeholder="Enter your name" 
+                    required 
+                    autofocus
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="pin" class="form-label" data-i18n-key="login_pin_label">PIN (Optional)</label>
+                <input 
+                    type="password" 
+                    id="pin" 
+                    name="pin" 
+                    class="form-input" 
+                    data-i18n-placeholder="login_pin_placeholder"
+                    placeholder="Leave blank if you don't have one"
+                >
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-large" data-i18n-key="login_button">Login</button>
+        </form>
+        
+        <div class="login-footer">
+            <p data-i18n-key="login_footer">This app is designed for caregivers and patients managing cognitive wellness.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

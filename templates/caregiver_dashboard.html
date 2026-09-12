@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Caregiver Dashboard - Memora{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1 data-i18n-key="dashboard_title">📊 Caregiver Dashboard</h1>
+        <p class="subtitle" data-i18n-key="dashboard_subtitle">Monitor patient progress and manage reminders.</p>
+    </div>
+    
+    <!-- ============================================================
+         PATIENT SELECTION (if multiple patients)
+         ============================================================ -->
+    <div class="patient-selector-section">
+        <label for="patient-select" data-i18n-key="view_patient_label">View Patient:</label>
+        <select id="patient-select" class="form-select">
+            <option value="" data-i18n-key="loading_patients">Loading patients...</option>
+        </select>
+    </div>
+    
+    <!-- ============================================================
+         PATIENT OVERVIEW SECTION
+         ============================================================ -->
+    <div class="patient-overview-section">
+        <div class="overview-header">
+            <h2 data-i18n-key="patient_overview_title">👤 Patient Overview</h2>
+        </div>
+        
+        <div class="overview-stats">
+            <div class="stat-card">
+                <span class="stat-label" data-i18n-key="stat_patient_name">Patient Name</span>
+                <span class="stat-value" id="overview-name">-</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label" data-i18n-key="stat_current_difficulty">Current Difficulty</span>
+                <span class="stat-value" id="overview-difficulty">-</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label" data-i18n-key="stat_total_games">Total Games Played</span>
+                <span class="stat-value" id="overview-total-games">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label" data-i18n-key="stat_avg_accuracy">Avg Accuracy</span>
+                <span class="stat-value" id="overview-avg-accuracy">-</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ============================================================
+         PROGRESS CHARTS SECTION
+         ============================================================ -->
+    <div class="progress-charts-section">
+        <h2 data-i18n-key="progress_over_time_title">📈 Progress Over Time</h2>
+        
+        <div class="charts-container">
+            <div class="chart-wrapper">
+                <h3 data-i18n-key="accuracy_progression">Accuracy Progression</h3>
+                <canvas id="accuracy-chart"></canvas>
+            </div>
+            
+            <div class="chart-wrapper">
+                <h3 data-i18n-key="score_progression">Score Progression</h3>
+                <canvas id="score-chart"></canvas>
+            </div>
+        </div>
+        
+        <div id="chart-message" class="chart-message" style="display: none;">
+            <p data-i18n-key="chart_message">📝 Not enough data yet — encourage the patient to play a few more sessions!</p>
+        </div>
+    </div>
+    
+    <!-- ============================================================
+         RECENT ACTIVITY TABLE SECTION
+         ============================================================ -->
+    <div class="recent-activity-section">
+        <h2 data-i18n-key="recent_activity_title">🎮 Recent Activity</h2>
+        
+        <div class="table-wrapper">
+            <table class="activity-table">
+                <thead>
+                    <tr>
+                        <th data-i18n-key="table_date">Date & Time</th>
+                        <th data-i18n-key="table_game">Game</th>
+                        <th data-i18n-key="table_score">Score</th>
+                        <th data-i18n-key="table_accuracy">Accuracy</th>
+                        <th data-i18n-key="table_difficulty">Difficulty</th>
+                    </tr>
+                </thead>
+                <tbody id="activity-table-body">
+                    <tr class="loading-row">
+                        <td colspan="5" class="text-center" data-i18n-key="form_loading">Loading activity...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- ============================================================
+         REMINDER MANAGEMENT SECTION (from Phase 3)
+         ============================================================ -->
+    <div class="dashboard-reminders-section">
+        <h2>🔔 Reminder Management</h2>
+        
+        <div id="add-reminder-form" class="add-reminder-container">
+            <p class="loading" data-i18n-key="form_loading">Loading form...</p>
+        </div>
+        
+        <div class="reminders-management">
+            <h3>All Reminders</h3>
+            <div id="manage-reminders-list" class="manage-reminders-list">
+                <p class="loading" data-i18n-key="form_loading">Loading reminders...</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="back-link">
+        <a href="{{ url_for('users.patient_home') }}" class="btn btn-secondary" data-i18n-key="btn_back_to_home">Back to Home</a>
+    </div>
+</div>
+
+<!-- ============================================================
+     CHART.JS SCRIPT
+     ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<!-- ============================================================
+     DASHBOARD DATA & SCRIPTS
+     ============================================================ -->
+<div id="app-data" data-caregiver-id="{{ session.get('user_id') or 'null' }}"></div>
+
+<script>
+    // Load caregiver ID from data attribute
+    const CAREGIVER_ID = document.getElementById('app-data').dataset.caregiverId;
+    if (CAREGIVER_ID === 'null') {
+        console.warn('No caregiver logged in');
+    }
+</script>
+<script src="{{ url_for('static', filename='js/dashboard_chart.js') }}"></script>
+<script src="{{ url_for('static', filename='js/reminders.js') }}"></script>
+{% endblock %}
