@@ -1,938 +1,360 @@
-# 🧠 MEMORA - Comprehensive Project Documentation
+# 🧠 MEMORA — Project Documentation
 
-**Smart Hackathon India 2026 (SIH26003)**
-
----
-
-## 📋 Table of Contents
-
-1. [Project Overview](#project-overview)
-2. [Technology Stack](#technology-stack)
-3. [Project Structure](#project-structure)
-4. [Database Models](#database-models)
-5. [Core Features](#core-features)
-6. [API Endpoints](#api-endpoints)
-7. [Frontend Architecture](#frontend-architecture)
-8. [Game Mechanics](#game-mechanics)
-9. [AI & Adaptive Difficulty](#ai--adaptive-difficulty)
-10. [Internationalization (i18n)](#internationalization-i18n)
-11. [Development Phases](#development-phases)
-12. [Setup & Installation](#setup--installation)
-13. [Running the Application](#running-the-application)
-14. [Testing](#testing)
-15. [Key Files Reference](#key-files-reference)
+**Smart India Hackathon 2026 · Problem SIH26003**
+Branch documented: `development` · Last verified: 178 automated tests passing
 
 ---
 
-## 🎯 Project Overview
+## Table of Contents
 
-**MEMORA** is an AI-powered cognitive support system designed for dementia patients and their caregivers. It combines cognitive games, personalized reminders, and voice assistance to provide comprehensive cognitive care with adaptive difficulty and regional language support.
-
-### Problem Statement
-Dementia is a progressive neurodegenerative condition affecting millions worldwide. Cognitive decline can be slowed through regular mental engagement. MEMORA bridges the gap between healthcare providers and patients by offering:
-- Structured cognitive exercises (games)
-- Medication and appointment reminders
-- Voice-based interaction for accessibility
-- Progress tracking and monitoring
-- Support for multiple languages (English, Assamese)
-
-### Target Users
-- **Primary**: Elderly patients with mild-to-moderate cognitive impairment
-- **Secondary**: Caregivers (family members, healthcare workers) managing multiple patients
-- **Accessibility**: Designed for limited tech literacy, accessible UI/UX
-
----
-
-## 🛠️ Technology Stack
-
-### Backend
-- **Framework**: Flask 3.0.0 (Python web framework)
-- **Database**: SQLite with SQLAlchemy ORM
-- **Language**: Python 3.13.7+
-- **Key Libraries**:
-  - `Flask-SQLAlchemy==3.1.1`: Database ORM integration
-  - Session management for authentication
-  - Blueprint system for modular routing
-
-### Frontend
-- **HTML5** with Jinja2 templating
-- **CSS3** for responsive design and elder-friendly UI
-- **JavaScript (ES6+)** for interactivity
-  - Chart.js for progress visualization
-  - Web Speech API for voice assistance
-  - Fetch API for async communication
-- **Local Storage** for client-side preferences
-
-### Deployment
-- Development: Flask development server (port 5000)
-- Database: SQLite (file-based, `data/memora.sqlite`)
-- Session Store: Flask secure sessions (encrypted cookies)
+1. [Overview](#1-overview)
+2. [Technology Stack](#2-technology-stack)
+3. [Project Structure](#3-project-structure)
+4. [Setup & Running](#4-setup--running)
+5. [Configuration](#5-configuration)
+6. [Database Models](#6-database-models)
+7. [Feature Modules](#7-feature-modules)
+8. [API Reference](#8-api-reference)
+9. [Frontend](#9-frontend)
+10. [Adaptive Difficulty](#10-adaptive-difficulty)
+11. [Internationalization](#11-internationalization)
+12. [Testing](#12-testing)
+13. [Development Phases](#13-development-phases)
+14. [Bug Fixes in This Revision](#14-bug-fixes-in-this-revision)
+15. [Known Issues & Security Notes](#15-known-issues--security-notes)
+16. [Future Work](#16-future-work)
 
 ---
 
-## 📁 Project Structure
+## 1. Overview
+
+**MEMORA** is a cognitive-support web app for people living with dementia and their caregivers. It combines cognitive games, reminders, a photo-based memory album, mood tracking, an SOS safety feature and a voice assistant, with English and Assamese (অসমীয়া) interfaces.
+
+| User | What they do |
+|------|--------------|
+| **Patient** | Plays games, sees reminders, browses the Memory Album, logs mood, asks "who is this?" via Memory Rescue, presses SOS |
+| **Caregiver** | Manages a patient's people/places/memories and reminders, views progress charts and mood trends, resolves SOS alerts |
+
+Design goals: large elder-friendly UI, minimal typing, no external AI services (all "AI" is deterministic and rule-based).
+
+---
+
+## 2. Technology Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | Python 3, Flask 3.0.0, Flask-SQLAlchemy 3.1.1 |
+| Database | SQLite (`data/memora.sqlite`) |
+| Frontend | Jinja2 templates, vanilla CSS/JavaScript, Chart.js-style dashboard chart |
+| Auth | Flask cookie session (`user_id`, `user_name`, `user_role`) |
+| Voice | Browser Web Speech API |
+| Tests | pytest (+ `requests`, `beautifulsoup4` for live-server tests) |
+
+`requirements.txt` — runtime. `requirements-dev.txt` — runtime + test tools.
+
+---
+
+## 3. Project Structure
 
 ```
 Memora/
-├── app.py                              # Main Flask application
-├── config.py                           # Configuration (DB URI, secrets)
-├── requirements.txt                    # Python dependencies
-│
-├── models/
-│   ├── __init__.py
-│   └── models.py                       # SQLAlchemy models (User, ActivityLog, Reminder)
-│
+├── app.py                  # Flask app, blueprint registration, error handlers
+├── config.py               # Config (SECRET_KEY, DATABASE_URL override)
+├── conftest.py             # pytest: isolates DB, skips live-server tests if server is down
+├── requirements.txt / requirements-dev.txt
+├── seed_demo_data.py       # Resets DB and loads demo patient/caregiver data (DESTRUCTIVE)
+├── models/models.py        # All SQLAlchemy models
 ├── routes/
-│   ├── __init__.py
-│   ├── users.py                        # Auth routes (login, logout, language preference)
-│   ├── reminders.py                    # Reminder CRUD endpoints
-│   ├── games.py                        # Game display & result logging
-│   └── progress.py                     # Caregiver dashboard & analytics
-│
-├── ai/
-│   ├── __init__.py
-│   └── adaptive_difficulty.py          # Rule-based difficulty adaptation
-│
-├── templates/
-│   ├── base.html                       # Master layout (navbar, footer)
-│   ├── login.html                      # Authentication page
-│   ├── patient_home.html               # Patient dashboard
-│   ├── games_hub.html                  # Game selection page
-│   ├── game_memory_match.html          # Memory Match game
-│   ├── game_attention_test.html        # Attention Test game
-│   ├── caregiver_dashboard.html        # Caregiver monitoring dashboard
-│   └── error.html                      # Error page template
-│
+│   ├── users.py            # Login/logout, page routes, language PATCH
+│   ├── games.py            # Game pages + activity logging
+│   ├── progress.py         # Progress & difficulty APIs
+│   ├── reminders.py        # Reminder CRUD
+│   ├── memory.py           # People / Places / Memories CRUD + photo upload
+│   ├── memory_assistance.py# Memory Rescue search
+│   ├── mood.py             # Mood entries & stats
+│   └── safety.py           # SOS alerts
+├── ai/adaptive_difficulty.py   # Rule-based difficulty engine
+├── utils/
+│   ├── upload_handler.py   # Validated image uploads
+│   ├── memory_search.py    # Query normalization + patient memory search
+│   └── response_generator.py   # Template-based spoken/text answers
+├── templates/              # 14 Jinja2 pages (base, login, patient_home, games, memory_*, mood, safety, ...)
 ├── static/
-│   ├── css/
-│   │   └── style.css                   # Global styling
-│   │
-│   ├── js/
-│   │   ├── i18n.js                     # Language switching module
-│   │   ├── error_handler.js            # Centralized error management
-│   │   ├── memory_match.js             # Memory Match game logic
-│   │   ├── attention_test.js           # Attention Test game logic
-│   │   ├── voice_assistant.js          # Web Speech API integration
-│   │   ├── reminders.js                # Reminder management
-│   │   └── dashboard_chart.js          # Progress visualization
-│   │
-│   └── i18n/
-│       ├── en.json                     # English translations
-│       └── as.json                     # Assamese translations
-│
-├── data/                               # (Auto-created at runtime)
-│   └── memora.sqlite                   # SQLite database file
-│
-├── docs/
-│   └── architecture.md                 # High-level system architecture
-│
-├── seed_demo_data.py                   # Demo data generator
-├── seed_test.py                        # Database test script
-│
-├── PHASE_8_COMPLETE.md                 # Phase 8 (Internationalization) summary
-├── PHASE_9_COMPLETE.md                 # Phase 9 (Polish) summary
-├── README.md                           # Quick start guide
-└── PROJECT_DOCUMENTATION.md            # This file
+│   ├── css/style.css
+│   ├── js/                 # 13 modules (see §9)
+│   ├── i18n/{en,as}.json   # 219 translation keys each
+│   └── uploads/memory/     # Uploaded photos (created at startup)
+├── tests/ + test_*.py      # Test suites and verification scripts
+└── PHASE_*.md, AUDIT_*.md  # Per-phase completion / audit reports
 ```
 
 ---
 
-## 🗄️ Database Models
-
-### 1. **User Model**
-```python
-class User(db.Model):
-    id                  # Integer, Primary Key
-    name                # String(120), required - User's full name
-    pin                 # String(10), optional - PIN for authentication
-    role                # String(20), default="patient" - "patient" or "caregiver"
-    preferred_language  # String(10), default="en" - "en" or "as" (Assamese)
-    created_at          # DateTime, auto-set - Account creation timestamp
-    
-    # Relationships:
-    activity_logs       # One-to-Many → ActivityLog (games played)
-    reminders           # One-to-Many → Reminder (personal reminders)
-```
-
-**Purpose**: Central user entity for both patients and caregivers  
-**Key Features**:
-- PIN-based authentication (not password, to accommodate elderly users)
-- Language preference persistence
-- Role-based access control
-
----
-
-### 2. **ActivityLog Model**
-```python
-class ActivityLog(db.Model):
-    id          # Integer, Primary Key
-    user_id     # Integer, Foreign Key → User.id
-    game_type   # String(50) - "memory_match" or "attention_test"
-    score       # Integer - points earned in game
-    accuracy    # Float (0-100) - percentage of correct responses
-    time_taken  # Float - seconds spent on game
-    difficulty  # String(20) - "easy", "medium", or "hard"
-    timestamp   # DateTime, auto-set - when game was played
-    
-    # Relationships:
-    user        # Backref to User
-```
-
-**Purpose**: Track all cognitive game sessions for progress monitoring  
-**Use Cases**:
-- Individual patient progress tracking
-- Caregiver dashboard analytics
-- Adaptive difficulty input
-- Historical trend analysis
-
-**Data Frequency**: New entry created after each completed game (~5-30 entries per patient per week)
-
----
-
-### 3. **Reminder Model**
-```python
-class Reminder(db.Model):
-    id          # Integer, Primary Key
-    user_id     # Integer, Foreign Key → User.id
-    title       # String(255) - Reminder description ("Take Aspirin", "Dr. Appointment")
-    type        # String(50) - "medicine", "appointment", or "activity"
-    time        # String(5) - HH:MM format ("09:30", "14:15")
-    is_done     # Boolean, default=False - Completion status
-    created_at  # DateTime, auto-set - Creation timestamp
-    
-    # Relationships:
-    user        # Backref to User
-```
-
-**Purpose**: Personal reminders for patients (managed by caregivers)  
-**Use Cases**:
-- Medicine administration schedules
-- Doctor appointment notifications
-- Activity/exercise reminders
-- Medication adherence tracking
-
----
-
-## ✨ Core Features
-
-### 1. **For Patients**
-
-#### A. Cognitive Games
-- **Memory Match**: Flip tiles to find matching pairs (improving working memory)
-  - Easy: 4 pairs (8 tiles)
-  - Medium: 6 pairs (12 tiles)
-  - Hard: 8 pairs (16 tiles)
-
-- **Attention Test**: Identify target symbols in a grid (improving sustained attention)
-  - Easy: 3 rounds, 4×4 grid
-  - Medium: 5 rounds, 5×5 grid
-  - Hard: 10 rounds, 6×6 grid
-
-#### B. Smart Reminders
-- Displays medication, appointment, and activity reminders
-- Visual and voice alerts
-- Mark reminders as complete
-- Persistent display on dashboard
-
-#### C. Voice Assistant
-- Text-to-speech for reminders and game instructions
-- Speech-to-text for simple voice queries
-- Web Speech API integration
-- Works offline (client-side)
-
-#### D. Progress Tracking
-- Visual dashboard showing cognitive metrics
-- Game statistics (score, accuracy, time)
-- Difficulty progression visualization
-- Trends over time (weekly/monthly)
-
-#### E. Regional Language Support
-- Full UI translation: English & Assamese
-- One-click language toggle
-- Persistent language preference
-- All static content localized
-
-#### F. Session Management
-- PIN-based authentication (easy for elderly)
-- Secure session cookies
-- Optional PIN (can play without authentication)
-- Quick logout option
-
----
-
-### 2. **For Caregivers**
-
-#### A. Patient Dashboard
-- Monitor multiple patients' progress
-- Drill-down into individual patient history
-- Real-time activity status
-- Session timestamps and metrics
-
-#### B. Progress Charts
-- Line charts: Score over time
-- Accuracy trends
-- Difficulty level progression
-- Response time metrics
-
-#### C. Activity Logs
-- Complete game history with timestamps
-- Performance metrics per session
-- Comparative analysis (across games, time periods)
-- Export capability (future)
-
-#### D. Patient Management
-- Add/edit patient profiles
-- Configure reminders
-- View language preferences
-- Manage patient accounts
-
-#### E. Analytics
-- Cognitive improvement indicators
-- Engagement frequency metrics
-- Performance benchmarks
-- Trend identification
-
----
-
-## 🔌 API Endpoints
-
-### Authentication Routes (`/routes/users.py`)
-
-| Method | Endpoint | Purpose | Auth Required |
-|--------|----------|---------|---------------|
-| GET | `/` | Redirect to appropriate page | No |
-| GET | `/login` | Login page | No |
-| POST | `/api/login` | Authenticate user (name + PIN) | No |
-| GET | `/logout` | Clear session | Yes |
-| GET | `/patient-home` | Patient dashboard | Yes |
-| GET | `/games` | Games navigation | Yes |
-| GET | `/caregiver-dashboard` | Caregiver monitoring | Yes |
-| PATCH | `/api/user/language` | Update language preference | Yes |
-
----
-
-### Games Routes (`/routes/games.py`)
-
-| Method | Endpoint | Purpose | Auth Required |
-|--------|----------|---------|---------------|
-| GET | `/games` | Games hub/selector | Yes |
-| GET | `/game/memory-match` | Memory Match page | Yes |
-| GET | `/game/attention-test` | Attention Test page | Yes |
-| POST | `/api/games/log` | Log game result | Yes |
-| GET | `/api/games/next-difficulty/<game_type>` | Get next difficulty | Yes |
-
-**POST /api/games/log Request Body**:
-```json
-{
-  "game_type": "memory_match" | "attention_test",
-  "score": 45,
-  "accuracy": 87.5,
-  "time_taken": 120.5,
-  "difficulty": "easy" | "medium" | "hard"
-}
-```
-
----
-
-### Reminders Routes (`/routes/reminders.py`)
-
-| Method | Endpoint | Purpose | Auth Required |
-|--------|----------|---------|---------------|
-| GET | `/api/reminders` | List all reminders for logged-in user | Yes |
-| POST | `/api/reminders` | Create new reminder | Yes |
-| PUT | `/api/reminders/<id>` | Update reminder | Yes |
-| PATCH | `/api/reminders/<id>/mark-done` | Mark reminder as complete | Yes |
-| DELETE | `/api/reminders/<id>` | Delete reminder | Yes |
-
-**POST/PUT Request Body**:
-```json
-{
-  "title": "Take Aspirin",
-  "type": "medicine",
-  "time": "09:30"
-}
-```
-
----
-
-### Progress Routes (`/routes/progress.py`)
-
-| Method | Endpoint | Purpose | Auth Required |
-|--------|----------|---------|---------------|
-| GET | `/api/progress/<user_id>` | Get user's activity summary | Yes |
-| GET | `/api/progress/<user_id>/logs` | Detailed activity logs | Yes |
-| GET | `/api/progress/<user_id>/stats` | Statistics summary | Yes |
-
----
-
-## 🎨 Frontend Architecture
-
-### Template Hierarchy
-
-```
-base.html (Master Layout)
-├── navbar (with language toggle)
-├── main content area (page-specific)
-└── footer
-
-├── login.html (entry point)
-│
-├── patient_home.html (after login)
-│   └── includes reminders.js
-│
-├── games_hub.html (game selection)
-│
-├── game_memory_match.html (Memory Match game)
-│   └── memory_match.js (game logic)
-│
-├── game_attention_test.html (Attention Test game)
-│   └── attention_test.js (game logic)
-│
-├── caregiver_dashboard.html (Caregiver view)
-│   ├── dashboard_chart.js (Chart.js visualization)
-│   └── progress analytics
-│
-└── error.html (error handling)
-```
-
-### Internationalization (i18n) Flow
-
-```
-Static HTML (data-i18n-key="login_title")
-                ↓
-i18n.js loads language JSON (en.json or as.json)
-                ↓
-Replaces content: gettext("login_title") → "Login" | "প্রবেশ"
-                ↓
-User preference saved to DB (preferred_language)
-                ↓
-Next login: preferred language auto-loads
-```
-
-### JavaScript Modules
-
-1. **i18n.js**: Language switching & translation management
-   - `loadLanguage(langCode)`: Fetch and apply translations
-   - `gettext(key)`: Retrieve translation string
-   - Fallback to English if translation missing
-
-2. **error_handler.js**: Centralized error management
-   - `showError(message, duration)`: Display error banner
-   - `showSuccess(message)`: Display success banner
-   - Auto-dismiss after 5 seconds
-   - Prevents console errors from reaching users
-
-3. **memory_match.js**: Memory Match game logic
-   - Tile shuffling & pair detection
-   - Score calculation
-   - Timer management
-   - Result submission via `/api/games/log`
-
-4. **attention_test.js**: Attention Test game logic
-   - Grid generation with target symbols
-   - Click detection & scoring
-   - Round management
-   - Difficulty configuration
-
-5. **voice_assistant.js**: Web Speech API integration
-   - `speak(text)`: Text-to-speech
-   - `listen()`: Speech-to-text
-   - Fallback for unsupported browsers
-   - Pronunciation optimization
-
-6. **reminders.js**: Reminder management
-   - CRUD operations via API
-   - Real-time UI updates
-   - Mark-as-done functionality
-   - Voice alert integration
-
-7. **dashboard_chart.js**: Progress visualization
-   - Chart.js line charts
-   - Accuracy over time
-   - Score trends
-   - Difficulty progression
-
----
-
-## 🎮 Game Mechanics
-
-### Memory Match Game
-
-**Objective**: Find matching pairs of tiles
-
-**Mechanics**:
-1. Grid of face-down tiles displayed
-2. Player flips 2 tiles per turn
-3. If tiles match, they remain face-up (1 point)
-4. If not, they flip back
-5. Game ends when all pairs found
-6. Time and accuracy tracked
-
-**Scoring**:
-- Base score = pairs found
-- Time bonus: (300 - time_taken) / 100, capped at 50 points
-- Final score = base + bonus
-
-**Difficulty Adaptation**:
-- Easy: 4 pairs (8 tiles)
-- Medium: 6 pairs (12 tiles)
-- Hard: 8 pairs (16 tiles)
-
----
-
-### Attention Test Game
-
-**Objective**: Identify target symbols in a grid
-
-**Mechanics**:
-1. Grid displayed with random symbols
-2. Target symbol highlighted at top
-3. Player clicks on all matching symbols
-4. New round after all symbols found
-5. Timer prevents endless delays
-6. Accuracy = (correct clicks / total correct symbols) × 100
-
-**Scoring**:
-- 1 point per correct click
-- -0.5 points per wrong click
-- Total score = sum of all rounds
-
-**Difficulty Adaptation**:
-- Easy: 3 rounds, 4×4 grid
-- Medium: 5 rounds, 5×5 grid
-- Hard: 10 rounds, 6×6 grid
-
----
-
-## 🤖 AI & Adaptive Difficulty
-
-### Adaptive Difficulty System
-
-**Architecture**: Rule-based heuristic (replaces ML for rapid prototyping)
-
-**Algorithm**:
-```
-If player has < 3 sessions:
-    Suggest "easy"
-Else:
-    Calculate average accuracy of last 3 sessions
-    If avg_accuracy >= 80%:
-        Suggest "hard"
-    Else if avg_accuracy >= 50%:
-        Suggest "medium"
-    Else:
-        Suggest "easy"
-```
-
-**Flow**:
-1. Player completes game → posts result to `/api/games/log`
-2. Backend calls `get_next_difficulty(recent_logs)` from `ai/adaptive_difficulty.py`
-3. Next difficulty returned to frontend
-4. Player starts next game at new difficulty
-
-**Game-Specific Settings**:
-
-**Memory Match**:
-- Easy: 4 pairs
-- Medium: 6 pairs
-- Hard: 8 pairs
-
-**Attention Test**:
-- Easy: 3 rounds, 4×4 grid
-- Medium: 5 rounds, 5×5 grid
-- Hard: 10 rounds, 6×6 grid
-
-### Production ML Enhancement
-The current rule-based system can be replaced with:
-- Scikit-learn logistic regression
-- Features: accuracy, reaction time, game count, time trends
-- Requires 50+ sessions per player for optimal training
-- Cross-validation to prevent overfitting
-
----
-
-## 🌍 Internationalization (i18n)
-
-### Supported Languages
-1. **English (en)** - Default
-2. **Assamese (as)** - Regional language
-
-### Translation Files
-
-**Location**: `static/i18n/`
-
-**en.json** (English translations):
-```json
-{
-  "login_title": "Login to MEMORA",
-  "patient_name": "Patient Name",
-  "games_hub_title": "Cognitive Games",
-  ...
-}
-```
-
-**as.json** (Assamese translations):
-```json
-{
-  "login_title": "MEMORA লৈ প্রবেশ",
-  "patient_name": "ৰোগীৰ নাম",
-  "games_hub_title": "জ্ঞানীয় খেলা",
-  ...
-}
-```
-
-### Implementation
-
-**Backend**:
-- User preference stored in `User.preferred_language`
-- PATCH `/api/user/language` endpoint updates preference
-- Preference persisted in SQLite
-
-**Frontend**:
-- i18n.js loads JSON file based on user preference
-- `data-i18n-key` attributes mark translatable text
-- Language toggle in navbar switches language instantly
-- LocalStorage caches current language for faster loading
-
----
-
-## 📊 Development Phases
-
-### Phase 0: Environment Setup ✅
-- Virtual environment creation
-- Flask + Flask-SQLAlchemy installation
-- Basic "Hello Memora" test route
-
-### Phase 1: Database & Models ✅
-- SQLAlchemy models defined (User, ActivityLog, Reminder)
-- SQLite database initialization
-- Test scripts for CRUD operations
-
-### Phase 2: Auth & Navigation Skeleton ✅
-- Login page with PIN authentication
-- Base layout with elder-friendly styling
-- Patient home page with placeholders
-
-### Phase 3: Reminders Module ✅
-- Full CRUD API for reminders
-- Reminder display on patient home
-- Add/edit/delete reminder forms
-- Integration with caregiver dashboard
-
-### Phase 4: Games (Core Feature) ✅
-- Memory Match game implementation
-- Attention Test game implementation
-- Game result logging API
-- Score & accuracy calculation
-
-### Phase 5: Adaptive Difficulty ✅
-- Rule-based difficulty adaptation algorithm
-- Integration with game endpoints
-- Difficulty settings per game type
-- Progression visualization
-
-### Phase 6: Caregiver Dashboard ✅
-- Patient progress endpoints
-- Activity log retrieval API
-- Chart.js integration for visualization
-- Multi-patient monitoring interface
-
-### Phase 7: Voice Assistant ✅
-- Web Speech API integration
-- Text-to-speech for reminders
-- Speech-to-text for commands
-- Fallback for unsupported browsers
-
-### Phase 8: Regional Language Toggle ✅
-- English & Assamese translations
-- Language toggle in navbar
-- Persistent language preference
-- All templates i18n-enabled
-
-### Phase 9: Polish for Demo ✅
-- Demo data seeder (seed_demo_data.py)
-- Comprehensive error handling
-- Loading states
-- Responsive design refinement
-- Performance optimization
-
----
-
-## 🚀 Setup & Installation
+## 4. Setup & Running
 
 ### Prerequisites
-- Python 3.13.7 or higher
-- pip (Python package manager)
-- Git (optional)
+Python 3.10+ and `pip`.
 
-### Step 1: Clone Repository
+### Install
 ```bash
-cd c:\Users\chala\Memora
-# or if not cloned yet:
-# git clone <repo-url>
-```
+git clone https://github.com/Arunachalam101/Memora.git
+cd Memora
+git checkout development
 
-### Step 2: Create Virtual Environment
-```bash
-# Windows (PowerShell):
 python -m venv venv
-.\venv\Scripts\Activate.ps1
+# Windows:  venv\Scripts\activate        macOS/Linux:  source venv/bin/activate
 
-# Windows (Command Prompt):
-python -m venv venv
-.\venv\Scripts\activate.bat
-
-# macOS/Linux:
-python -m venv venv
-source venv/bin/activate
+pip install -r requirements.txt          # app only
+pip install -r requirements-dev.txt      # app + test tools
 ```
 
-### Step 3: Install Dependencies
+### (Optional) Load demo data
 ```bash
-pip install -r requirements.txt
-```
-
-**requirements.txt contents**:
-```
-Flask==3.0.0
-Flask-SQLAlchemy==3.1.1
-```
-
-### Step 4: Create Demo Database
-```bash
-# Windows (PowerShell):
-.\venv\Scripts\python.exe seed_demo_data.py
-
-# Windows (Command Prompt) or macOS/Linux:
 python seed_demo_data.py
 ```
+> ⚠️ Drops and recreates every table. Only run it on a database you are happy to lose.
 
-**Output**:
-```
-✅ DEMO DATA SEEDING COMPLETE
-📊 Demo Account Information:
-  Patient: Priya Devi (ID: 1, PIN: 1234)
-  Caregiver: Anil Sharma (ID: 2, PIN: 5678)
-📊 Generated 15 Activity Logs (9 days of data with improvement trend)
-```
+Demo accounts: patient **Priya Devi** (PIN `1234`), caregiver **Anil Sharma** (PIN `5678`).
 
----
-
-## ▶️ Running the Application
-
-### Start the Development Server
+### Run
 ```bash
-# Windows (PowerShell):
-.\venv\Scripts\python.exe app.py
-
-# Windows (Command Prompt) or macOS/Linux:
 python app.py
 ```
-
-### Expected Output
-```
- * Debug mode: on
- * Running on http://localhost:5000
- * WARNING: This is a development server. Do not use it in production.
-```
-
-### Access the Application
-- Open browser: **http://localhost:5000**
-- Redirects to login page
-- Or go directly to: **http://localhost:5000/login**
-
-### Demo Login Credentials
-
-**Patient Account**:
-- Name: Priya Devi
-- PIN: 1234
-
-**Caregiver Account**:
-- Name: Anil Sharma
-- PIN: 5678
+Open <http://127.0.0.1:5000>. Tables are created automatically on start.
 
 ---
 
-## 🧪 Testing
+## 5. Configuration
 
-### Test Files Overview
+| Setting | Source | Default |
+|---------|--------|---------|
+| `SECRET_KEY` | env `SECRET_KEY` | `dev-secret-key-change-in-production` |
+| Database | env `DATABASE_URL` | `sqlite:///<project>/data/memora.sqlite` |
+| `DEBUG` | `config.py` | `True` |
 
-| File | Purpose | Command |
-|------|---------|---------|
-| test_requirements.py | Verify dependencies | `python test_requirements.py` |
-| seed_test.py | Database connectivity | `python seed_test.py` |
-| test_i18n.py | i18n functionality | `python test_i18n.py` |
-| test_i18n_coverage.py | Translation completeness | `python test_i18n_coverage.py` |
-| test_patch_endpoint.py | Language update endpoint | `python test_patch_endpoint.py` |
-| test_active_button.py | Language toggle UI | `python test_active_button.py` |
-| test_phase7_voice.py | Voice assistant | `python test_phase7_voice.py` |
-| test_e2e.py | End-to-end workflow | `python test_e2e.py` |
+Set `SECRET_KEY` and turn off `DEBUG` before any real deployment.
 
-### Running Tests
+---
+
+## 6. Database Models
+
+All in `models/models.py`.
+
+| Table | Key columns | Notes |
+|-------|-------------|-------|
+| `users` | `id, name, pin, role, preferred_language, created_at` | `role` = `patient`/`caregiver`; language `en`/`as` |
+| `activity_logs` | `user_id, game_type, score, accuracy, time_taken, difficulty, timestamp` | One row per finished game |
+| `reminders` | `user_id, title, type, time("HH:MM"), is_done` | `type`: medicine / appointment / activity |
+| `memory_people` | `patient_id, name, relationship, description, photo, is_active` | Soft-delete via `is_active` |
+| `memory_places` | `patient_id, name, description, photo, is_active` | Soft-delete |
+| `memory_items` | `patient_id, title, description, photo, memory_date, is_active` | Soft-delete |
+| `mood_entries` | `patient_id, mood, note, timestamp` | mood ∈ `very_happy, happy, okay, sad, very_sad` |
+| `safety_alerts` | `patient_id, alert_type, status, message, created_at, resolved_at` | status `active`/`resolved` |
+
+`User` cascades deletes to its logs and reminders. Photo columns store a **relative path only**.
+
+---
+
+## 7. Feature Modules
+
+### Games (Phases 4–5, 10B)
+Four games, all logging to `activity_logs`:
+- **Memory Match** — flip cards to match pairs.
+- **Attention Test** — react to targets in a grid.
+- **Photo–Name Match** — match a person's photo to their name (uses the patient's own album).
+- **Who Is This?** — identify a person from their photo.
+
+### Reminders (Phase 3)
+Caregiver/patient create timed reminders; patients tick them off.
+
+### Memory Album (Phase 10A)
+Caregivers add **people, places and memories** with optional photos. Uploads are validated by `UploadHandler`: extensions `jpg/jpeg/png/gif/webp`, MIME-type check, max **5 MB**, stored under `static/uploads/memory/`.
+
+### Memory Rescue (Phase 10C)
+Patient types or speaks a question ("Who is Ravi?"). `memory_search` normalizes it and searches that patient's album; `response_generator` builds a **deterministic template answer** (priority: people › places › memories). No LLM or external API is used. If nothing matches it says the info isn't saved and suggests asking a caregiver.
+
+### Mood Tracking (Phase 10D)
+Patient logs a mood + optional note; caregivers see today's mood, history and aggregate stats.
+
+### Safety / SOS (Phase 10E)
+Patient presses SOS → an `emergency` alert is created (duplicate active alerts are prevented; `patient_id` always comes from the session). Caregivers list alerts and resolve them.
+
+### Voice Assistant (Phase 7)
+`voice_assistant.js` uses the browser speech API for voice commands and read-aloud.
+
+### Caregiver Dashboard (Phase 6)
+Patient selector, progress chart, difficulty level, reminders and safety/mood overview.
+
+---
+
+## 8. API Reference
+
+Authorization rule of thumb: a **patient** may only access their own data; a **caregiver** may access any patient. Unauthenticated → `401`, wrong role/patient → `403`.
+
+### Pages (HTML)
+| Route | Purpose |
+|-------|---------|
+| `GET /` | Redirects to `/patient-home` or `/login` |
+| `GET/POST /login`, `GET /logout` | Login (creates the user on first login) / logout |
+| `GET /patient-home`, `/games`, `/caregiver-dashboard`, `/memory-album`, `/memory-rescue`, `/mood`, `/safety` | Main pages (login required) |
+| `GET /game/memory-match`, `/game/attention-test`, `/game/photo-name-match`, `/game/who-is-this` | Game pages |
+
+### Users
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/users/patients` | List patients (caregiver) |
+| PATCH | `/api/user/language` | Body `{"language":"en"|"as"}`; `400` on any other code |
+
+### Games & Progress
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/api/games/log` | Save a finished game |
+| GET | `/api/progress/<user_id>` | History for charts |
+| GET | `/api/difficulty/<user_id>` | Recommended next difficulty |
+
+### Reminders (`/api`)
+| Method | Route |
+|--------|-------|
+| GET / POST | `/api/reminders` |
+| PUT / DELETE | `/api/reminders/<id>` |
+
+### Memory (`/api/memory`)
+| Resource | Routes |
+|----------|--------|
+| People | `GET/POST /people`, `PUT/DELETE /people/<id>` |
+| Places | `GET/POST /places`, `PUT/DELETE /places/<id>` |
+| Memories | `GET/POST /memories`, `PUT/DELETE /memories/<id>` |
+| Rescue | `POST /search` |
+
+### Mood (`/api/mood`)
+`POST /entries` · `GET /today` · `GET /history` · `GET /stats`
+
+### Safety (`/api/safety`)
+`POST /sos` · `GET /status` · `GET /alerts` · `POST /alerts/<id>/resolve`
+
+### Errors
+`404`, `500` and uncaught exceptions render `error.html`; paths starting with `/api/` get JSON `{"error": ...}` instead.
+
+---
+
+## 9. Frontend
+
+`templates/base.html` provides the navbar (with EN/AS toggle), flash area and script includes; every page extends it.
+
+| JS module | Role |
+|-----------|------|
+| `i18n.js` | Loads `en.json`/`as.json`, applies `data-i18n` keys, saves choice to localStorage + DB |
+| `error_handler.js` | Global fetch/UI error display |
+| `memory_match.js`, `attention_test.js`, `photo_name_match.js`, `who_is_this.js` | Game logic |
+| `reminders.js` | Reminder UI |
+| `dashboard_chart.js` | Caregiver progress chart |
+| `memory_album.js` | Album CRUD + uploads |
+| `memory_rescue.js` | Rescue search UI |
+| `mood.js` | Mood picker & history |
+| `safety.js` | SOS button & alert list |
+| `voice_assistant.js` | Speech input/output |
+
+---
+
+## 10. Adaptive Difficulty
+
+`ai/adaptive_difficulty.py` — transparent rule-based logic (a stand-in for a future ML model):
+
+- Fewer than 3 sessions → `easy`
+- Otherwise average accuracy of the last 3 sessions: **≥ 80 % → hard**, **≥ 50 % → medium**, else **easy**
+
+| Difficulty | Memory Match | Attention Test |
+|-----------|--------------|----------------|
+| easy | 4 pairs | 6 rounds, grid 4 |
+| medium | 6 pairs | 8 rounds, grid 6 |
+| hard | 8 pairs | 10 rounds, grid 9 |
+
+---
+
+## 11. Internationalization
+
+Languages: **English (`en`)** and **Assamese (`as`)**, 219 keys each. Choice is stored in `localStorage` and in `users.preferred_language`, and restored at login. To add a string: add the same key to both JSON files and use `data-i18n="key"` in the template (`test_i18n_coverage.py` checks parity).
+
+---
+
+## 12. Testing
+
 ```bash
-# Run a specific test
-python test_requirements.py
-
-# Run all tests (manual):
-python test_requirements.py
-python seed_test.py
-python test_i18n.py
+pip install -r requirements-dev.txt
+python -m pytest -q
 ```
 
-### Test Coverage
-- ✅ Database models and operations
-- ✅ Authentication and sessions
-- ✅ Game logic and scoring
-- ✅ Reminder CRUD operations
-- ✅ Language switching and persistence
-- ✅ Voice assistant integration
-- ✅ API endpoint functionality
-- ✅ Error handling
+- **Without a server:** ~169 tests run in seconds. They use an isolated temporary database (see `conftest.py`) — your real `data/memora.sqlite` is never touched.
+- **Live-server tests** (`test_e2e.py`, `test_requirements.py`, `test_caregiver.py`, `test_page_load.py`, `test_patch_*.py`, …) need `python app.py` running on port 5000 and are **skipped automatically** if it isn't. To run everything, start the server on its own database so the two don't interfere:
+
+```bash
+# terminal 1
+DATABASE_URL=sqlite:////tmp/live.sqlite python app.py
+# terminal 2
+python -m pytest -q          # 178 passed
+```
+(Windows PowerShell: `$env:DATABASE_URL="sqlite:///C:/temp/live.sqlite"`.)
+
+Main suites: `test_phase10a_memory.py`, `test_phase10b_memory_games.py`, `test_phase10c_memory_assistance.py`, `test_phase10d_mood.py`, `tests/test_phase10e_safety.py`, `test_authorization_audit.py`, `test_i18n*.py`.
 
 ---
 
-## 📚 Key Files Reference
+## 13. Development Phases
 
-### Core Application Files
-
-| File | Responsibility | Key Functions/Classes |
-|------|-----------------|----------------------|
-| `app.py` | Flask app initialization, routing, error handlers | Flask app creation, blueprint registration, error pages |
-| `config.py` | Configuration management | Config class with DB URI, secret key |
-| `models/models.py` | Database models | User, ActivityLog, Reminder classes |
-
-### Route Modules
-
-| File | Responsibility | Key Endpoints |
-|------|-----------------|---------------|
-| `routes/users.py` | Authentication, user management | /login, /logout, /patient-home, /caregiver-dashboard, /api/user/language |
-| `routes/games.py` | Game display, result logging | /games, /game/*, /api/games/log, /api/games/next-difficulty |
-| `routes/reminders.py` | Reminder management | /api/reminders (CRUD) |
-| `routes/progress.py` | Analytics, caregiver dashboard | /api/progress/*, progress charts |
-
-### AI & Logic Modules
-
-| File | Responsibility | Key Functions |
-|------|-----------------|---------------|
-| `ai/adaptive_difficulty.py` | Difficulty adaptation | get_next_difficulty(), get_difficulty_settings() |
-
-### Frontend JavaScript Modules
-
-| File | Responsibility | Key Functions |
-|------|-----------------|---------------|
-| `static/js/i18n.js` | Language switching | loadLanguage(), gettext(), applyTranslations() |
-| `static/js/error_handler.js` | Error/success messages | showError(), showSuccess(), handleApiError() |
-| `static/js/memory_match.js` | Memory game logic | shuffleTiles(), checkMatch(), submitScore() |
-| `static/js/attention_test.js` | Attention game logic | generateGrid(), checkSymbol(), calculateAccuracy() |
-| `static/js/voice_assistant.js` | Voice I/O | speak(), listen(), handleVoiceCommand() |
-| `static/js/reminders.js` | Reminder management | loadReminders(), addReminder(), markDone() |
-| `static/js/dashboard_chart.js` | Progress visualization | initChart(), updateChart(), renderTrends() |
-
-### Template Files
-
-| File | Purpose | Key Sections |
-|------|---------|--------------|
-| `templates/base.html` | Master layout | Navbar (language toggle), footer, main content slot |
-| `templates/login.html` | Login form | Name input, PIN input, role selection |
-| `templates/patient_home.html` | Patient dashboard | Reminders, games button, progress widget |
-| `templates/games_hub.html` | Game selection | Memory Match & Attention Test buttons |
-| `templates/game_memory_match.html` | Memory game | Game board, score display, timer |
-| `templates/game_attention_test.html` | Attention game | Grid, target display, results |
-| `templates/caregiver_dashboard.html` | Caregiver view | Patient selector, charts, activity logs |
-| `templates/error.html` | Error display | Error code, message, recovery buttons |
-
-### Translation Files
-
-| File | Content | Coverage |
-|------|---------|----------|
-| `static/i18n/en.json` | English strings | 50+ keys (login, games, reminders, caregiver dashboard) |
-| `static/i18n/as.json` | Assamese strings | 50+ keys (parallel to English) |
+| Phase | Deliverable |
+|-------|-------------|
+| 0–2 | Environment, models, login & navigation |
+| 3 | Reminders |
+| 4 | Games (Memory Match, Attention Test) |
+| 5 | Adaptive difficulty |
+| 6 | Caregiver dashboard |
+| 7 | Voice assistant |
+| 8 | English/Assamese toggle |
+| 9 | Demo polish, error handling |
+| 10A | Memory Album + photo uploads |
+| 10B | Memory-based games (Photo–Name Match, Who Is This?) |
+| 10C | Memory Rescue search |
+| 10D | Mood tracking |
+| 10E | Safety / SOS |
+| 10F | Audit (`AUDIT_PHASE_10F_REPORT.md`) |
 
 ---
 
-## 🔐 Security Considerations
+## 14. Bug Fixes in This Revision
 
-### Current Implementation
-- PIN-based authentication (not passwords)
-- Session-based authorization (Flask secure cookies)
-- Database-persisted user roles
-- SQL injection prevention (SQLAlchemy ORM)
+**Problem:** running the test-suite destroyed the real database. Symptoms: `sqlite3.OperationalError: no such table: users`, `POST /login → 500`, and `test_requirements.py` failing with a JSON decode error.
 
-### Production Recommendations
-1. **HTTPS**: Enable SSL/TLS for encrypted communication
-2. **Password Hashing**: Replace PIN with hashed passwords (use werkzeug.security)
-3. **CSRF Protection**: Add Flask-WTF CSRF tokens
-4. **Rate Limiting**: Prevent brute-force login attempts
-5. **Input Validation**: Sanitize all user inputs
-6. **Secret Key Management**: Use environment variables for production secrets
-7. **Database Backups**: Regular encrypted backups of SQLite file
+**Root cause:** the test fixtures set `SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'` *after* `app.py` had already called `db.init_app(app)`. Flask-SQLAlchemy 3.x builds the engine inside `init_app`, so the override was ignored and the fixtures' `db.drop_all()` ran against `data/memora.sqlite`. `test_phase10b_memory_games.py` did not attempt isolation at all.
+
+**Fix:**
+| File | Change |
+|------|--------|
+| `config.py` | Database URI now read from `DATABASE_URL` (falls back to the old path) |
+| `conftest.py` (new) | Sets `DATABASE_URL` to a temp file **before** the app is imported; skips live-server scripts when no server is running |
+| `requirements-dev.txt` (new) | Adds `pytest`, `requests`, `beautifulsoup4`, which the tests import but `requirements.txt` lacked |
+
+**Result:** 177 pass / 1 fail / server errors → **178 passed, 0 failed, 0 server tracebacks**; the real database is no longer modified by tests.
 
 ---
 
-## 📈 Performance Considerations
+## 15. Known Issues & Security Notes
 
-### Optimization Areas
-1. **Database Indexing**: Add indexes on user_id, game_type, timestamp
-2. **Caching**: Cache language files and user preferences
-3. **Lazy Loading**: Load activity logs paginated (not all at once)
-4. **CDN**: Serve static files from CDN in production
-5. **Minification**: Minify JS/CSS for production builds
-6. **Image Optimization**: Compress any images or graphics
+Not changed in this revision (behavior decisions for the project owner):
 
-### Current Bottlenecks
-- All activity logs loaded at once (should paginate)
-- Full database scan for difficulty calculation (should cache recent logs)
-- No caching layer (consider Redis)
+1. **PIN is never verified.** `POST /login` looks a user up by name only; the PIN is stored at first login but ignored afterwards, so anyone who knows a name can log in as that user (including a caregiver). PINs are also stored in plain text. *Recommendation:* hash PINs (`werkzeug.security`) and check them on login.
+2. **Login auto-creates accounts** for unknown names.
+3. `DEBUG = True` and a default `SECRET_KEY` — fine for demos, unsafe in production.
+4. No CSRF protection on form/JSON endpoints.
+5. Deprecation warnings: `Query.get()` (use `db.session.get()`) and `datetime.utcnow()` (use `datetime.now(timezone.utc)`).
+6. Unused imports in `routes/memory_assistance.py`, `progress.py`, `games.py`, `safety.py`.
+7. `seed_demo_data.py` wipes all tables without confirmation.
 
 ---
 
-## 🚀 Future Enhancements
+## 16. Future Work
 
-### Short-term (Next Releases)
-1. Mobile app (React Native or Flutter)
-2. More game types (Number Recognition, Pattern Matching)
-3. Video call support for caregiver consultations
-4. Medication image recognition
-5. Integration with wearables (heart rate, sleep tracking)
-
-### Medium-term
-1. Machine Learning for improved difficulty adaptation
-2. Social features (leaderboards, peer competition)
-3. Integration with healthcare provider systems
-4. Advanced analytics dashboard
-5. Multi-language support (Hindi, Tamil, Bengali, etc.)
-
-### Long-term
-1. AI-powered mental health assessment
-2. Personalized treatment plans
-3. Integration with electronic health records (EHR)
-4. Blockchain for secure health data sharing
-5. Telemedicine integration
-6. Predictive analytics for cognitive decline prediction
-
----
-
-## 📞 Support & Contact
-
-For issues, questions, or feature requests:
-1. Check existing test files for usage examples
-2. Review API documentation above
-3. Consult architecture.md for system design
-4. Contact development team with detailed error logs
-
----
-
-## 📄 License & Credits
-
-**Project**: MEMORA (Smart Hackathon India 2026)  
-**Challenge ID**: SIH26003  
-**Purpose**: Cognitive Support for Dementia Patients  
-**Technology**: Python + Flask + SQLAlchemy
-
-**Contributors**: Development Team (SIH 2026)
-
----
-
-**Last Updated**: 2026-09-23  
-**Project Status**: Phase 9 Complete (Ready for Demo & Deployment)
-
+- Fix the authentication issues in §15.
+- Replace rule-based difficulty with a trained model once enough data exists.
+- Push notifications / SMS for reminders and SOS.
+- Add more regional languages.
+- Alembic migrations, Docker image, production WSGI server (gunicorn) and PostgreSQL.
