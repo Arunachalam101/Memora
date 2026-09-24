@@ -86,7 +86,7 @@ async function initDashboard() {
 
 async function fetchAllPatients() {
     try {
-        const response = await fetch(`/api/users/patients`);
+        const response = await fetch(`/api/users/patients`, { credentials: 'include' });
         if (!response.ok) {
             console.error('Failed to fetch patients');
             if (typeof ErrorHandler !== 'undefined') {
@@ -100,6 +100,11 @@ async function fetchAllPatients() {
         
         // Populate dropdown
         const select = document.getElementById('patient-select');
+        if (!select) {
+            console.warn('Patient select element not found');
+            return;
+        }
+        
         select.innerHTML = '';
         
         patients.forEach(patient => {
@@ -139,18 +144,29 @@ async function selectPatient(patientId) {
             chartMessageElement.style.display = 'block';
         }
         
-        // Fetch progress and difficulty data for this patient
-        const [progressData, difficultyData] = await Promise.all([
-            fetch(`/api/progress/${patientId}`).then(r => r.json()),
-            fetch(`/api/difficulty/${patientId}`).then(r => r.json())
-        ]);
+        const fetchOptions = { credentials: 'include' };
+        
+        // Fetch progress, difficulty, mood data, and safety alerts for this patient
+        const progressResponse = await fetch(`/api/progress/${patientId}`, fetchOptions);
+        const progressData = progressResponse.ok ? await progressResponse.json() : [];
+        
+        const difficultyResponse = await fetch(`/api/difficulty/${patientId}`, fetchOptions);
+        const difficultyData = difficultyResponse.ok ? await difficultyResponse.json() : { difficulty: 'medium' };
+        
+        const moodResponse = await fetch(`/api/mood/today?patient_id=${patientId}`, fetchOptions);
+        const moodData = moodResponse.ok ? await moodResponse.json() : { has_entry: false, entry: null };
+        
+        const safetyResponse = await fetch(`/api/safety/alerts`, fetchOptions);
+        const safetyAlertsData = safetyResponse.ok ? await safetyResponse.json() : { success: false, alerts: [] };
         
         dashboardState.progressData = progressData || [];
         
-        // Render overview, charts, and table
+        // Render overview, charts, table, and safety alerts
         updatePatientOverview(patientId, difficultyData);
+        updatePatientMood(moodData);
         updateCharts(dashboardState.progressData);
         updateActivityTable(dashboardState.progressData);
+        updateSafetyAlerts(safetyAlertsData.alerts || []);
     } catch (error) {
         console.error('Failed to load patient data:', error);
         if (typeof ErrorHandler !== 'undefined') {
@@ -195,6 +211,48 @@ function updatePatientOverview(patientId, difficultyData) {
         document.getElementById('overview-avg-accuracy').textContent = avgAccuracy.toFixed(1) + '%';
     } else {
         document.getElementById('overview-avg-accuracy').textContent = '-';
+    }
+}
+
+function updatePatientMood(moodData) {
+    const moodEmojis = {
+        'very_happy': '😊',
+        'happy': '🙂',
+        'okay': '😐',
+        'sad': '😟',
+        'very_sad': '😔'
+    };
+    
+    const moodLabels = {
+        'very_happy': 'Very Happy',
+        'happy': 'Happy',
+        'okay': 'Okay',
+        'sad': 'Sad',
+        'very_sad': 'Very Sad'
+    };
+    
+    const moodDisplay = document.getElementById('overview-mood');
+    const moodTimeDisplay = document.getElementById('overview-mood-time');
+    
+    if (moodData && moodData.has_entry && moodData.entry) {
+        const mood = moodData.entry.mood;
+        const emoji = moodEmojis[mood] || '😐';
+        const label = moodLabels[mood] || mood;
+        
+        moodDisplay.textContent = emoji + ' ' + label;
+        
+        // Format timestamp
+        const date = new Date(moodData.entry.timestamp);
+        const timeStr = date.toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true
+        });
+        
+        moodTimeDisplay.textContent = timeStr;
+    } else {
+        moodDisplay.textContent = '-';
+        moodTimeDisplay.textContent = '-';
     }
 }
 
@@ -364,6 +422,11 @@ function initScoreChart(labels, memoryData, attentionData) {
 
 function updateActivityTable(progressData) {
     const tbody = document.getElementById('activity-table-body');
+    if (!tbody) {
+        console.warn('Activity table body element not found');
+        return;
+    }
+    
     tbody.innerHTML = '';
     
     if (progressData.length === 0) {
@@ -395,9 +458,94 @@ function updateActivityTable(progressData) {
             <td>${log.accuracy.toFixed(1)}%</td>
             <td>${diffEmojis[log.difficulty] || log.difficulty}</td>
         `;
-        
-        tbody.appendChild(row);
+        tableBody.appendChild(row);
     });
+}
+
+// ============================================================
+// SAFETY ALERTS SECTION (Phase 10E)
+// ============================================================
+
+function updateSafetyAlerts(alerts) {
+    const container = document.getElementById('safety-alerts-container');
+    if (!container) return;
+    
+    if (!alerts || alerts.length === 0) {
+        container.innerHTML = `
+            <div class="no-alerts-message">
+                <p data-i18n-key="safety_no_active_alerts">🛡️ No active safety alerts</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    for (const alert of alerts) {
+        const createdDate = new Date(alert.created_at);
+        const formattedTime = createdDate.toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+        });
+        
+        const alertClass = alert.status === 'active' ? 'alert-item active' : 'alert-item resolved';
+        const statusText = alert.status === 'active' ? '🔴 Active' : '✅ Resolved';
+        const buttonHtml = alert.status === 'active' 
+            ? `<button class="btn-resolve" onclick="resolveAlertFromDashboard(${alert.id})">Resolve</button>`
+            : '';
+        
+        html += `
+            <div class="${alertClass}">
+                <div class="alert-header">
+                    <span class="alert-type">⚠️ Emergency Alert</span>
+                    <span class="alert-status">${statusText}</span>
+                </div>
+                <div class="alert-body">
+                    <p class="alert-time">Time: ${formattedTime}</p>
+                    <p class="alert-message">${alert.message ? escapeHtmlInDashboard(alert.message) : 'Emergency alert'}</p>
+                </div>
+                <div class="alert-actions">
+                    ${buttonHtml}
+                </div>
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
+}
+
+function resolveAlertFromDashboard(alertId) {
+    if (confirm('Mark this alert as resolved?')) {
+        fetch(`/api/safety/alerts/${alertId}/resolve`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload alerts
+                fetch(`/api/safety/alerts`, { credentials: 'include' })
+                    .then(r => r.json())
+                    .then(d => updateSafetyAlerts(d.alerts || []))
+                    .catch(e => console.error('Error reloading alerts:', e));
+            }
+        })
+        .catch(error => console.error('Error resolving alert:', error));
+    }
+}
+
+function escapeHtmlInDashboard(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
 }
 
 // ============================================================

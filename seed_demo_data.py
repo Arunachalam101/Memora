@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from app import app, db
-from models.models import User, ActivityLog, Reminder
+from models.models import User, ActivityLog, Reminder, MemoryPerson, MemoryPlace, MemoryItem
 
 DB_PATH = Path(__file__).parent / 'data' / 'memora.sqlite'
 
@@ -178,6 +178,91 @@ def create_activity_logs(patient):
         print("  • Score trend: +30-40 points over 9 days")
 
 
+def create_demo_memories(patient):
+    """Create demo memory records for the patient - Phase 10A"""
+    print("\n📸 Creating demo memory records...")
+    with app.app_context():
+        # Demo people
+        people = [
+            MemoryPerson(
+                patient_id=patient.id,
+                name="Anil Sharma",
+                relationship="Son",
+                description="Lives in Delhi, works in software engineering. Loves gardening and cooking."
+            ),
+            MemoryPerson(
+                patient_id=patient.id,
+                name="Lakshmi Devi",
+                relationship="Mother",
+                description="Lives in Punjab. Enjoys reading and playing with grandchildren."
+            ),
+            MemoryPerson(
+                patient_id=patient.id,
+                name="Ravi Kumar",
+                relationship="Brother",
+                description="Lives in Mumbai. Retired from banking. Likes playing cricket."
+            ),
+        ]
+        
+        # Demo places
+        places = [
+            MemoryPlace(
+                patient_id=patient.id,
+                name="Home",
+                description="3-room apartment in New Delhi. Where family gathers during festivals."
+            ),
+            MemoryPlace(
+                patient_id=patient.id,
+                name="Local Hospital",
+                description="Apollo Hospital, Sector 5. Regular check-ups every 3 months."
+            ),
+            MemoryPlace(
+                patient_id=patient.id,
+                name="Temple",
+                description="Sri Veerabhadreshwara Temple nearby. Visits every Sunday morning."
+            ),
+        ]
+        
+        # Demo memories
+        from datetime import datetime
+        memories = [
+            MemoryItem(
+                patient_id=patient.id,
+                title="Family Function",
+                description="Memorable reunion with all family members. Everyone gathered at home for Diwali celebration.",
+                memory_date=datetime(2024, 11, 1).date()
+            ),
+            MemoryItem(
+                patient_id=patient.id,
+                title="Birthday Party",
+                description="Grandchildren came over and sang birthday songs. Had delicious homemade kheer.",
+                memory_date=datetime(2024, 9, 15).date()
+            ),
+            MemoryItem(
+                patient_id=patient.id,
+                title="Festival Celebration",
+                description="Celebrated Holi with colors and traditional food. The whole neighborhood joined in the festivities.",
+                memory_date=datetime(2024, 3, 25).date()
+            ),
+        ]
+        
+        # Add all records to database
+        for person in people:
+            db.session.add(person)
+        
+        for place in places:
+            db.session.add(place)
+        
+        for memory in memories:
+            db.session.add(memory)
+        
+        db.session.commit()
+        
+        print(f"✓ Created {len(people)} people records")
+        print(f"✓ Created {len(places)} place records")
+        print(f"✓ Created {len(memories)} memory records")
+
+
 def main():
     """Main function to seed database"""
     print("=" * 70)
@@ -199,6 +284,7 @@ def main():
     patient, caregiver = create_demo_users()
     create_reminders(patient)
     create_activity_logs(patient)
+    create_demo_memories(patient)
     
     # Print summary
     print("\n" + "=" * 70)
@@ -212,6 +298,10 @@ def main():
     print("  • 15 activity logs (7-10 days, upward trending)")
     print("  • Score progression: showing improvement story")
     print("  • Difficulty: easy → medium → hard")
+    print("  • Phase 10A Memory Album:")
+    print("    - 3 people (family members)")
+    print("    - 3 places (important locations)")
+    print("    - 3 memories (important events with dates)")
     print("\n🚀 Next steps:")
     print("  1. Run: python app.py")
     print("  2. Login as 'Priya Devi' (patient)")

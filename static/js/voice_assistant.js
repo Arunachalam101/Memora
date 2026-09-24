@@ -159,6 +159,12 @@ async function processVoiceQuery(query) {
     console.log('Processing query:', query);
 
     try {
+        // Intent: Memory Companion Query (Phase 10C)
+        if (isMemoryCompanionQuery(query)) {
+            await handleMemoryCompanionQuery(query);
+            return;
+        }
+
         // Intent: Current time
         if (query.includes('time') && !query.includes('reminder')) {
             const now = new Date();
@@ -190,6 +196,12 @@ async function processVoiceQuery(query) {
             return;
         }
 
+        // Intent: Mood query (Phase 10D)
+        if (isMoodQuery(query)) {
+            await handleMoodQuery(query);
+            return;
+        }
+
         // Intent: Greeting
         if (query.includes('how are you') || query.includes('hello') || query.includes('hi there')) {
             const greeting = 'I am Memora, your voice assistant. I am here to help you stay on track with your tasks and reminders.';
@@ -206,6 +218,68 @@ async function processVoiceQuery(query) {
 }
 
 // ============================================================
+// MEMORY COMPANION QUERY DETECTION & HANDLING (Phase 10C)
+// ============================================================
+
+function isMemoryCompanionQuery(query) {
+    /**
+     * Detect if query is a memory companion query.
+     * Examples: "Who is Anil?", "where is home?", "tell me about Anil"
+     */
+    const keywords = ['who is', "who's", 'where is', 'tell me about', 'describe', 
+                      'how is', 'what about', 'who am i'];
+    return keywords.some(kw => query.toLowerCase().includes(kw));
+}
+
+async function handleMemoryCompanionQuery(query) {
+    /**
+     * Handle memory companion query via API.
+     * Searches patient's memory and speaks the result.
+     */
+    try {
+        console.log('Handling memory companion query:', query);
+        
+        // Show listening indicator
+        showVoiceMessage('Searching your memories...');
+        
+        // Call the API
+        const response = await fetch('/api/memory/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({ query: query })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            const errorMsg = errorData.error || 'Could not search memories';
+            console.error('Memory search error:', errorMsg);
+            await speak('I had trouble searching your memory. Please try again later.');
+            return;
+        }
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            console.error('Memory search failed:', data.error);
+            await speak(data.response || 'I could not find that information.');
+            return;
+        }
+        
+        // Speak the response
+        const responseText = data.response;
+        console.log('Memory companion response:', responseText);
+        await speak(responseText);
+        
+    } catch (error) {
+        console.error('Error handling memory companion query:', error);
+        await speak('I had trouble searching your memory. Please try again.');
+    }
+}
+
+// ============================================================
 // REMINDER QUERY HANDLER
 // ============================================================
 
@@ -214,7 +288,7 @@ async function respondToReminderQuery() {
         // If reminders data is not yet available, fetch it
         if (!VoiceAssistant.remindersData || VoiceAssistant.remindersData.length === 0) {
             // Try to fetch from API
-            const response = await fetch(`/api/reminders/${USER_ID}`);
+            const response = await fetch(`/api/reminders/${USER_ID}`, { credentials: 'include' });
             if (response.ok) {
                 VoiceAssistant.remindersData = await response.json();
             }
@@ -320,6 +394,80 @@ function showVoiceMessage(message) {
             statusDiv.textContent = '';
         }, 4000);
     }
+}
+
+// ============================================================
+// MOOD QUERY HANDLER (Phase 10D)
+// ============================================================
+
+function isMoodQuery(query) {
+    /**
+     * Detect if query is asking about mood/feelings
+     */
+    const moodKeywords = [
+        'mood', 'feeling', 'how am i', 'how do i feel', 'feel',
+        'happy', 'sad', 'okay', 'stressed', 'upset', 'emotional'
+    ];
+    
+    return moodKeywords.some(keyword => query.includes(keyword));
+}
+
+async function handleMoodQuery(query) {
+    /**
+     * Handle mood-related questions
+     */
+    try {
+        // Fetch today's mood
+        const response = await fetch('/api/mood/today', { credentials: 'include' });
+        if (!response.ok) {
+            await speak('I was unable to retrieve your mood. Please record it on the mood tracker page.');
+            return;
+        }
+
+        const data = await response.json();
+        
+        if (!data.has_entry || !data.entry) {
+            await speak('You have not recorded a mood today. Please visit the mood tracker to record how you are feeling.');
+            return;
+        }
+
+        // Format mood response
+        const mood = data.entry.mood;
+        const moodLabel = getMoodLabel(mood);
+        const timestamp = new Date(data.entry.timestamp);
+        const timeStr = timestamp.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+
+        let response_text = `Your mood today is ${moodLabel}, recorded at ${timeStr}.`;
+        
+        if (data.entry.note) {
+            response_text += ` You noted: ${data.entry.note}`;
+        }
+
+        await speak(response_text);
+
+    } catch (error) {
+        console.error('Error handling mood query:', error);
+        await speak('I had trouble retrieving your mood information. Please try again later.');
+    }
+}
+
+function getMoodLabel(mood) {
+    /**
+     * Convert mood value to readable label
+     */
+    const labels = {
+        'very_happy': 'very happy',
+        'happy': 'happy',
+        'okay': 'okay',
+        'sad': 'sad',
+        'very_sad': 'very sad'
+    };
+    
+    return labels[mood] || mood;
 }
 
 // ============================================================

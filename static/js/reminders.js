@@ -62,6 +62,7 @@ async function createReminder(title, type, time) {
         const response = await fetch('/api/reminders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ title, type, time })
         });
         
@@ -90,6 +91,7 @@ async function updateReminder(id, updates) {
         const response = await fetch(`/api/reminders/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(updates)
         });
         
@@ -115,7 +117,8 @@ async function updateReminder(id, updates) {
 async function deleteReminder(id) {
     try {
         const response = await fetch(`/api/reminders/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            credentials: 'include'
         });
         
         if (response.status === 401) {

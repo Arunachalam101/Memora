@@ -44,6 +44,14 @@
                 <span class="stat-label" data-i18n-key="stat_avg_accuracy">Avg Accuracy</span>
                 <span class="stat-value" id="overview-avg-accuracy">-</span>
             </div>
+            <div class="stat-card">
+                <span class="stat-label" data-i18n-key="stat_current_mood">Current Mood</span>
+                <span class="stat-value" id="overview-mood">-</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label" data-i18n-key="mood_last_recorded">Last Recorded</span>
+                <span class="stat-value" id="overview-mood-time">-</span>
+            </div>
         </div>
     </div>
     
@@ -97,6 +105,17 @@
     </div>
     
     <!-- ============================================================
+         SAFETY ALERTS SECTION (Phase 10E)
+         ============================================================ -->
+    <div class="safety-alerts-section">
+        <h2 data-i18n-key="safety_alerts_title">🛡️ Safety Alerts</h2>
+        
+        <div id="safety-alerts-container" class="safety-alerts-list">
+            <p class="loading" data-i18n-key="form_loading">Loading alerts...</p>
+        </div>
+    </div>
+    
+    <!-- ============================================================
          REMINDER MANAGEMENT SECTION (from Phase 3)
          ============================================================ -->
     <div class="dashboard-reminders-section">
@@ -112,6 +131,17 @@
                 <p class="loading" data-i18n-key="form_loading">Loading reminders...</p>
             </div>
         </div>
+    </div>
+    
+    <!-- ============================================================
+         PHASE 10A - MEMORY ALBUM SECTION
+         ============================================================ -->
+    <div class="dashboard-memory-section" style="margin-top: 40px; padding: 20px; background-color: #f9f9f9; border-radius: 8px; border-left: 4px solid #007bff;">
+        <h2>📸 Memory Album</h2>
+        <p data-i18n-key="memory_album_subtitle">Manage personalized information about the patient's important people, places, and memories.</p>
+        <a href="{{ url_for('users.memory_album') }}" class="btn btn-primary" style="margin-top: 10px;">
+            <span data-i18n-key="memory_album">Memory Album</span> →
+        </a>
     </div>
     
     <div class="back-link">

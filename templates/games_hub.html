@@ -27,6 +27,24 @@
             </p>
             <button class="btn btn-primary btn-large" data-i18n-key="btn_play_now">Play Now</button>
         </a>
+        
+        <a href="{{ url_for('games.photo_name_match_game') }}" class="game-card">
+            <div class="game-icon">📸</div>
+            <h2 data-i18n-key="game_photo_name_match_title">Photo / Name Match</h2>
+            <p class="game-description" data-i18n-key="game_photo_name_match_desc">
+                Look at a photo and identify the person's name.
+            </p>
+            <button class="btn btn-primary btn-large" data-i18n-key="btn_play_now">Play Now</button>
+        </a>
+        
+        <a href="{{ url_for('games.who_is_this_game') }}" class="game-card">
+            <div class="game-icon">🧑</div>
+            <h2 data-i18n-key="game_who_is_this_title">Who Is This?</h2>
+            <p class="game-description" data-i18n-key="game_who_is_this_desc">
+                Read a person's name and select their photo.
+            </p>
+            <button class="btn btn-primary btn-large" data-i18n-key="btn_play_now">Play Now</button>
+        </a>
     </div>
     
     <div class="back-link">

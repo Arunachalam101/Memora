@@ -10,6 +10,11 @@ from routes.users import users_bp
 from routes.reminders import reminders_bp
 from routes.games import games_bp
 from routes.progress import progress_bp
+from routes.memory import memory_bp
+from routes.memory_assistance import memory_assistance_bp
+from routes.mood import mood_bp
+from routes.safety import safety_bp
+from utils.upload_handler import UploadHandler
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -25,6 +30,13 @@ app.register_blueprint(users_bp)
 app.register_blueprint(reminders_bp)
 app.register_blueprint(games_bp)
 app.register_blueprint(progress_bp)
+app.register_blueprint(memory_bp)
+app.register_blueprint(memory_assistance_bp)
+app.register_blueprint(mood_bp)
+app.register_blueprint(safety_bp)
+
+# Initialize upload handler
+UploadHandler.init_app(app)
 
 @app.route('/')
 def index():

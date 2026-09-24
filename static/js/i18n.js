@@ -215,5 +215,6 @@ if (document.readyState === 'loading') {
 window.I18N = {
     loadLanguage,
     getCurrentLanguage: () => I18NState.currentLanguage,
-    getTranslation: (key) => I18NState.translations[key] || key
+    getTranslation: (key) => I18NState.translations[key] || key,
+    applyTranslations: applyTranslations
 };

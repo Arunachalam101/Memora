@@ -79,6 +79,42 @@ def caregiver_dashboard():
     return render_template('caregiver_dashboard.html', user=user)
 
 
+@users_bp.route('/memory-album')
+@login_required
+def memory_album():
+    """Memory Album page - Phase 10A"""
+    user_id = session.get('user_id')
+    user = User.query.get(user_id)
+    return render_template('memory_album.html', user=user)
+
+
+@users_bp.route('/memory-rescue')
+@login_required
+def memory_rescue():
+    """Memory Rescue page - Phase 10C"""
+    user_id = session.get('user_id')
+    user = User.query.get(user_id)
+    return render_template('memory_rescue.html', user=user)
+
+
+@users_bp.route('/mood')
+@login_required
+def mood():
+    """Mood Tracker page - Phase 10D"""
+    user_id = session.get('user_id')
+    user = User.query.get(user_id)
+    return render_template('mood.html', user=user)
+
+
+@users_bp.route('/safety')
+@login_required
+def safety():
+    """Safety page - Phase 10E"""
+    user_id = session.get('user_id')
+    user = User.query.get(user_id)
+    return render_template('safety.html', user=user)
+
+
 # ============================================================
 # API ENDPOINTS FOR DASHBOARD (Phase 6)
 # ============================================================

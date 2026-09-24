@@ -57,6 +57,28 @@ def attention_test_game():
     return render_template('game_attention_test.html', user=user)
 
 
+@games_bp.route('/game/photo-name-match', methods=['GET'])
+def photo_name_match_game():
+    """Display photo/name match game (Phase 10B - personalized)"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return {}, 302
+    
+    user = User.query.get(user_id)
+    return render_template('game_photo_name_match.html', user=user)
+
+
+@games_bp.route('/game/who-is-this', methods=['GET'])
+def who_is_this_game():
+    """Display who is this game (Phase 10B - personalized)"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return {}, 302
+    
+    user = User.query.get(user_id)
+    return render_template('game_who_is_this.html', user=user)
+
+
 # ============================================================
 # GAME LOGGING API
 # ============================================================

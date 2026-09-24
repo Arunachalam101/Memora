@@ -42,6 +42,35 @@
         <p data-i18n-key="games_section_subtitle">Cognitive games to boost your memory and attention will be available soon.</p>
         <a href="{{ url_for('users.games') }}" class="btn btn-secondary" data-i18n-key="btn_go_to_games">Go to Games</a>
     </div>
+
+    <!-- ============================================================
+         MEMORY SECTION (Phase 10A & 10C)
+         ============================================================ -->
+    <div class="placeholder-section">
+        <h2>📚 Memory</h2>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <a href="{{ url_for('users.memory_album') }}" class="btn btn-secondary" data-i18n-key="nav_memory_album">📖 Memory Album</a>
+            <a href="{{ url_for('users.memory_rescue') }}" class="btn btn-secondary" data-i18n-key="nav_memory_rescue">🆘 Memory Rescue</a>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MOOD TRACKER SECTION (Phase 10D)
+         ============================================================ -->
+    <div class="placeholder-section">
+        <h2 data-i18n-key="mood_title">🎭 Mood Tracker</h2>
+        <p data-i18n-key="mood_section_subtitle">Record how you're feeling today</p>
+        <a href="{{ url_for('users.mood') }}" class="btn btn-secondary" data-i18n-key="btn_check_mood">Check Your Mood</a>
+    </div>
+
+    <!-- ============================================================
+         SAFETY SECTION (Phase 10E)
+         ============================================================ -->
+    <div class="placeholder-section">
+        <h2 data-i18n-key="safety_title">🛡️ Safety</h2>
+        <p data-i18n-key="safety_section_subtitle">Check your safety status</p>
+        <a href="{{ url_for('users.safety') }}" class="btn btn-secondary" data-i18n-key="btn_check_safety">Check Safety Status</a>
+    </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/voice_assistant.js') }}"></script>

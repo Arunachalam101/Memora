@@ -64,7 +64,7 @@ async function fetchDifficultyAndInit() {
             return;
         }
         
-        const response = await fetch(`/api/difficulty/${USER_ID}`);
+        const response = await fetch(`/api/difficulty/${USER_ID}`, { credentials: 'include' });
         
         if (!response.ok) {
             console.warn('Failed to fetch difficulty, using default');
@@ -292,6 +292,7 @@ async function logGameResult(data) {
         const response = await fetch('/api/games/log', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(data)
         });
         

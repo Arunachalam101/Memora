@@ -86,3 +86,176 @@ class Reminder(db.Model):
             'is_done': self.is_done,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
+
+
+# ============================================================
+# PHASE 10A - MEMORY FOUNDATION
+# ============================================================
+
+class MemoryPerson(db.Model):
+    """Family members and important people in patient's life"""
+    __tablename__ = 'memory_people'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('users.id'), 
+                           nullable=False, index=True)
+    name = db.Column(db.String(255), nullable=False)
+    relationship = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    photo = db.Column(db.String(500))  # Relative path only
+    is_active = db.Column(db.Boolean, default=True, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, 
+                           onupdate=datetime.utcnow)
+    
+    user = db.relationship('User', backref='memory_people')
+    
+    def __repr__(self):
+        return f"<MemoryPerson {self.id}: {self.name}>"
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'relationship': self.relationship,
+            'description': self.description,
+            'photo': self.photo,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class MemoryPlace(db.Model):
+    """Important places in patient's life"""
+    __tablename__ = 'memory_places'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('users.id'), 
+                           nullable=False, index=True)
+    name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    photo = db.Column(db.String(500))
+    is_active = db.Column(db.Boolean, default=True, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, 
+                           onupdate=datetime.utcnow)
+    
+    user = db.relationship('User', backref='memory_places')
+    
+    def __repr__(self):
+        return f"<MemoryPlace {self.id}: {self.name}>"
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'photo': self.photo,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class MemoryItem(db.Model):
+    """Important memories and events"""
+    __tablename__ = 'memory_items'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('users.id'), 
+                           nullable=False, index=True)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    photo = db.Column(db.String(500))
+    memory_date = db.Column(db.Date)  # Optional
+    is_active = db.Column(db.Boolean, default=True, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, 
+                           onupdate=datetime.utcnow)
+    
+    user = db.relationship('User', backref='memory_items')
+    
+    def __repr__(self):
+        return f"<MemoryItem {self.id}: {self.title}>"
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'photo': self.photo,
+            'memory_date': self.memory_date.isoformat() if self.memory_date else None,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+# ============================================================
+# PHASE 10D - MOOD TRACKING
+# ============================================================
+
+class MoodEntry(db.Model):
+    """Patient mood tracking entries"""
+    __tablename__ = 'mood_entries'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('users.id'), 
+                           nullable=False, index=True)
+    mood = db.Column(db.String(20), nullable=False)
+    # Values: "very_happy", "happy", "okay", "sad", "very_sad"
+    note = db.Column(db.Text, nullable=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, 
+                           onupdate=datetime.utcnow)
+    
+    user = db.relationship('User', backref='mood_entries')
+    
+    def __repr__(self):
+        return f"<MoodEntry {self.id}: patient_id={self.patient_id} mood={self.mood} at {self.timestamp}>"
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'patient_id': self.patient_id,
+            'mood': self.mood,
+            'note': self.note,
+            'timestamp': self.timestamp.isoformat() if self.timestamp else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+
+# ============================================================
+# PHASE 10E - SAFETY & CAREGIVER SUPPORT
+# ============================================================
+
+class SafetyAlert(db.Model):
+    """Safety alerts for emergency situations and patient monitoring"""
+    __tablename__ = 'safety_alerts'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('users.id'), 
+                           nullable=False, index=True)
+    alert_type = db.Column(db.String(50), nullable=False)  # "emergency"
+    status = db.Column(db.String(20), nullable=False, default='active')  # "active" or "resolved"
+    message = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    resolved_at = db.Column(db.DateTime, nullable=True)
+    
+    user = db.relationship('User', backref='safety_alerts')
+    
+    def __repr__(self):
+        return f"<SafetyAlert {self.id}: patient_id={self.patient_id} type={self.alert_type} status={self.status}>"
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'patient_id': self.patient_id,
+            'alert_type': self.alert_type,
+            'status': self.status,
+            'message': self.message,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'resolved_at': self.resolved_at.isoformat() if self.resolved_at else None
+        }

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Safety - Memora{% endblock %}
+
+{% block content %}
+<div class="container safety-page">
+    <div class="page-header">
+        <h1 data-i18n-key="safety_title">🛡️ Safety</h1>
+    </div>
+    
+    <!-- Safety Status Card -->
+    <div class="safety-status-card">
+        <div id="safety-icon" class="safety-icon">🛡️</div>
+        <div id="safety-text" class="safety-text">
+            <h2 id="safety-status-label" data-i18n-key="safety_status_safe">SAFE</h2>
+            <p id="safety-status-detail" data-i18n-key="safety_no_active_alerts">No active alerts</p>
+        </div>
+    </div>
+    
+    <!-- Emergency Button -->
+    <div class="emergency-button-container">
+        <button id="sos-button" class="btn btn-emergency" data-i18n-key="btn_emergency">
+            🆘 EMERGENCY
+        </button>
+        <p class="emergency-hint" data-i18n-key="safety_emergency_hint">Tap if you need immediate help</p>
+    </div>
+    
+    <!-- Success Message (hidden by default) -->
+    <div id="success-message" class="alert alert-success" style="display: none;">
+        <p id="success-text" data-i18n-key="safety_caregiver_alerted">Your caregiver has been alerted.</p>
+    </div>
+    
+    <!-- Navigation -->
+    <div class="navigation-buttons">
+        <a href="{{ url_for('users.patient_home') }}" class="btn btn-secondary" data-i18n-key="btn_back_to_home">← Back to Home</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/safety.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        SafetyUI.initSafetyPage();
+    });
+</script>
+{% endblock %}
