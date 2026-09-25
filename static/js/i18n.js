@@ -218,3 +218,13 @@ window.I18N = {
     getTranslation: (key) => I18NState.translations[key] || key,
     applyTranslations: applyTranslations
 };
+
+// Backward compatibility: Create i18n alias
+window.i18n = {
+    get: (key) => I18NState.translations[key] || key
+};
+
+// getTranslation helper (used in safety.js)
+function getTranslation(key) {
+    return I18NState.translations[key] || key;
+}

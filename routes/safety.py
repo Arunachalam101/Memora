@@ -158,13 +158,16 @@ def get_safety_alerts():
     if user.role != 'caregiver':
         return jsonify({'error': 'Only caregivers can access alerts'}), 403
     
-    # Get recent alerts (active and resolved within last 24 hours)
+    # Always include active alerts; also include resolved alerts from last 7 days
     from datetime import timedelta
-    recent_cutoff = datetime.utcnow() - timedelta(hours=24)
+    recent_cutoff = datetime.utcnow() - timedelta(days=7)
     
     query = SafetyAlert.query.filter(
         (SafetyAlert.status == 'active') |
-        (SafetyAlert.resolved_at >= recent_cutoff)
+        (
+            (SafetyAlert.status == 'resolved') &
+            (SafetyAlert.resolved_at >= recent_cutoff)
+        )
     )
 
     patient_id = request.args.get('patient_id', type=int)
@@ -172,10 +175,18 @@ def get_safety_alerts():
         query = query.filter(SafetyAlert.patient_id == patient_id)
 
     alerts = query.order_by(SafetyAlert.created_at.desc()).all()
+
+    # Attach patient names for caregiver dashboard display
+    payload = []
+    for alert in alerts:
+        item = alert.to_dict()
+        patient = User.query.get(alert.patient_id)
+        item['patient_name'] = patient.name if patient else f'Patient #{alert.patient_id}'
+        payload.append(item)
     
     return jsonify({
         'success': True,
-        'alerts': [alert.to_dict() for alert in alerts]
+        'alerts': payload
     }), 200
 
 

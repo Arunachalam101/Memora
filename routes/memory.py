@@ -42,10 +42,8 @@ def check_memory_authorization(patient_id, can_edit=False):
     if not user:
         return False, ({"error": "Unauthorized"}, 401)
     
-    # Case 1: Patient accessing their own memories (view-only)
+    # Case 1: Patient accessing their own memories (can view AND edit their own)
     if user.role == 'patient' and patient_id == user_id:
-        if can_edit:
-            return False, ({"error": "Forbidden"}, 403)
         return True, None
     
     # Case 2: Caregiver accessing patient's memories (full access)

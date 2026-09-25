@@ -189,8 +189,8 @@ class TestMemoryAuthorization:
         data = json.loads(response.data)
         assert len(data) == 1
     
-    def test_patient_cannot_edit_own_memories(self, client, users):
-        """Test that patient cannot edit own memories"""
+    def test_patient_can_edit_own_memories(self, client, users):
+        """Test that patient CAN edit own memories (fixed authorization)"""
         with client.session_transaction() as sess:
             sess['user_id'] = users['patient_id']
             sess['user_role'] = 'patient'
@@ -203,7 +203,7 @@ class TestMemoryAuthorization:
                 'relationship': 'Test'
             }
         )
-        assert response.status_code == 403
+        assert response.status_code == 201  # Patient can create (after authorization fix)
     
     def test_caregiver_can_view_all_memories(self, client, users):
         """Test that caregiver can view patient memories"""

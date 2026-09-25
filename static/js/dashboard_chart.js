@@ -11,6 +11,7 @@ let dashboardState = {
     currentPatientId: null,
     allPatients: [],
     progressData: [],
+    refreshTimer: null,
     charts: {
         accuracy: null,
         score: null
@@ -21,6 +22,23 @@ const COLORS = {
     memory_match: '#4A90D9',   // Primary blue
     attention_test: '#27AE60', // Success green
     gridLines: '#E0E0E0'
+};
+
+// Mood emoji and label mappings
+const moodEmojis = {
+    'very_happy': '😄',
+    'happy': '🙂',
+    'okay': '😐',
+    'sad': '😢',
+    'very_sad': '😞'
+};
+
+const moodLabels = {
+    'very_happy': 'Very Happy',
+    'happy': 'Happy',
+    'okay': 'Okay',
+    'sad': 'Sad',
+    'very_sad': 'Very Sad'
 };
 
 const CHART_OPTIONS = {
@@ -57,6 +75,18 @@ const CHART_OPTIONS = {
 };
 
 // ============================================================
+// DOM ELEMENT REFERENCES
+// ============================================================
+
+let moodDisplay = null;
+let moodTimeDisplay = null;
+
+function initDOMElements() {
+    moodDisplay = document.getElementById('overview-mood');
+    moodTimeDisplay = document.getElementById('overview-mood-time');
+}
+
+// ============================================================
 // INITIALIZATION
 // ============================================================
 
@@ -66,14 +96,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function initDashboard() {
     try {
+        // Initialize DOM element references
+        initDOMElements();
+        
         // Fetch all patients from the system
         await fetchAllPatients();
         
         // Set default patient (first in list, or prompt)
         if (dashboardState.allPatients.length > 0) {
-            selectPatient(dashboardState.allPatients[0].id);
+            await selectPatient(dashboardState.allPatients[0].id);
         } else {
             showNoPatients();
+        }
+
+        // Auto-refresh mood + safety so patient updates appear without full page reload
+        if (!dashboardState.refreshTimer) {
+            dashboardState.refreshTimer = setInterval(() => {
+                if (dashboardState.currentPatientId) {
+                    selectPatient(dashboardState.currentPatientId);
+                }
+            }, 15000);
         }
     } catch (error) {
         console.error('Failed to initialize dashboard:', error);
@@ -152,9 +194,26 @@ async function selectPatient(patientId) {
         
         const difficultyResponse = await fetch(`/api/difficulty/${patientId}`, fetchOptions);
         const difficultyData = difficultyResponse.ok ? await difficultyResponse.json() : { difficulty: 'medium' };
-        
+        let moodData = { has_entry: false, entry: null };
         const moodResponse = await fetch(`/api/mood/today?patient_id=${patientId}`, fetchOptions);
-        const moodData = moodResponse.ok ? await moodResponse.json() : { has_entry: false, entry: null };
+        if (moodResponse.ok) {
+            moodData = await moodResponse.json();
+        }
+
+        // Fallback: if no mood recorded today, show the latest history entry
+        if (!moodData.has_entry || !moodData.entry) {
+            const historyResponse = await fetch(
+                `/api/mood/history?patient_id=${patientId}&days=30&limit=1`,
+                fetchOptions
+            );
+            if (historyResponse.ok) {
+                const historyData = await historyResponse.json();
+                const entries = historyData.entries || [];
+                if (entries.length > 0) {
+                    moodData = { has_entry: true, entry: entries[0], from_history: true };
+                }
+            }
+        }
         
         const safetyResponse = await fetch(`/api/safety/alerts?patient_id=${patientId}`, fetchOptions);
         const safetyAlertsData = safetyResponse.ok ? await safetyResponse.json() : { success: false, alerts: [] };
@@ -215,24 +274,7 @@ function updatePatientOverview(patientId, difficultyData) {
 }
 
 function updatePatientMood(moodData) {
-    const moodEmojis = {
-        'very_happy': '😊',
-        'happy': '🙂',
-        'okay': '😐',
-        'sad': '😟',
-        'very_sad': '😔'
-    };
-    
-    const moodLabels = {
-        'very_happy': 'Very Happy',
-        'happy': 'Happy',
-        'okay': 'Okay',
-        'sad': 'Sad',
-        'very_sad': 'Very Sad'
-    };
-    
-    const moodDisplay = document.getElementById('overview-mood');
-    const moodTimeDisplay = document.getElementById('overview-mood-time');
+    if (!moodDisplay || !moodTimeDisplay) return;
     
     if (moodData && moodData.has_entry && moodData.entry) {
         const mood = moodData.entry.mood;
@@ -241,18 +283,28 @@ function updatePatientMood(moodData) {
         
         moodDisplay.textContent = emoji + ' ' + label;
         
-        // Format timestamp
-        const date = new Date(moodData.entry.timestamp);
-        const timeStr = date.toLocaleTimeString('en-US', { 
-            hour: 'numeric', 
-            minute: '2-digit',
-            hour12: true
-        });
+        // Format timestamp (support date + time for older entries)
+        const date = new Date(moodData.entry.timestamp || moodData.entry.created_at);
+        const isToday = !isNaN(date) && date.toDateString() === new Date().toDateString();
+        let timeStr = '-';
+        if (!isNaN(date)) {
+            const clock = date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+            timeStr = isToday
+                ? clock
+                : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' + clock;
+            if (moodData.from_history && !isToday) {
+                timeStr = 'Last: ' + timeStr;
+            }
+        }
         
         moodTimeDisplay.textContent = timeStr;
     } else {
         moodDisplay.textContent = '-';
-        moodTimeDisplay.textContent = '-';
+        moodTimeDisplay.textContent = 'No mood recorded';
     }
 }
 
@@ -454,21 +506,25 @@ function updateActivityTable(progressData) {
         row.innerHTML = `
             <td>${formatDateTime(log.timestamp)}</td>
             <td>${gameEmojis[log.game_type] || log.game_type}</td>
-            <td><strong>${log.score}</strong></td>
-            <td>${log.accuracy.toFixed(1)}%</td>
             <td>${diffEmojis[log.difficulty] || log.difficulty}</td>
+            <td>${log.score || '-'}</td>
+            <td>${log.accuracy ? log.accuracy + '%' : '-'}</td>
         `;
-        tableBody.appendChild(row);
+        
+        tbody.appendChild(row);
     });
 }
 
 // ============================================================
-// SAFETY ALERTS SECTION (Phase 10E)
+// SAFETY ALERTS SECTION
 // ============================================================
 
 function updateSafetyAlerts(alerts) {
     const container = document.getElementById('safety-alerts-container');
-    if (!container) return;
+    if (!container) {
+        console.warn('Safety alerts container not found');
+        return;
+    }
     
     if (!alerts || alerts.length === 0) {
         container.innerHTML = `

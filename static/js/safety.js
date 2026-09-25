@@ -51,8 +51,12 @@ const SafetyUI = {
     submitSOS: function() {
         this.state.isSubmitting = true;
         const sosButton = document.getElementById('sos-button');
+        
         if (sosButton) {
             sosButton.disabled = true;
+            const originalHTML = sosButton.innerHTML;
+            sosButton.dataset.originalHTML = originalHTML;
+            sosButton.innerHTML = '⏳ Sending Alert...';
         }
         
         fetch('/api/safety/sos', {
@@ -65,25 +69,47 @@ const SafetyUI = {
         .then(response => response.json())
         .then(data => {
             if (data.success || data.alert) {
-                // Show success message
+                // Show button as "sent/complete"
+                if (sosButton) {
+                    sosButton.innerHTML = '✓ Alert Sent!';
+                    sosButton.style.backgroundColor = '#28a745';
+                }
+                
+                // Show success message with confirmation
                 this.showSuccessMessage();
-                // Update status
+                
+                // Update status to show alert active
                 this.loadSafetyStatus();
+                
+                // Reset button after 3 seconds
+                setTimeout(() => {
+                    if (sosButton) {
+                        sosButton.disabled = false;
+                        sosButton.innerHTML = sosButton.dataset.originalHTML || '🆘 EMERGENCY';
+                        sosButton.style.backgroundColor = '';
+                    }
+                    this.state.isSubmitting = false;
+                }, 3000);
             } else {
                 console.error('SOS submission failed:', data.message);
                 alert(data.message || 'Failed to create alert. Please try again.');
+                // Restore button on error
+                if (sosButton) {
+                    sosButton.disabled = false;
+                    sosButton.innerHTML = sosButton.dataset.originalHTML || '🆘 EMERGENCY';
+                }
+                this.state.isSubmitting = false;
             }
         })
         .catch(error => {
             console.error('Error:', error);
             alert('Error creating alert. Please try again.');
-        })
-        .finally(() => {
-            this.state.isSubmitting = false;
-            const sosButton = document.getElementById('sos-button');
+            // Restore button on error
             if (sosButton) {
                 sosButton.disabled = false;
+                sosButton.innerHTML = sosButton.dataset.originalHTML || '🆘 EMERGENCY';
             }
+            this.state.isSubmitting = false;
         });
     },
     

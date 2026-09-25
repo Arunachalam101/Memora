@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, session, url_for
+from flask import Blueprint, render_template, request, redirect, session, url_for, jsonify
 from models.models import db, User
 
 users_bp = Blueprint('users', __name__)
@@ -137,9 +137,9 @@ def get_patients():
             for p in patients
         ]
         
-        return patients_data, 200
+        return jsonify(patients_data), 200
     except Exception as e:
-        return {"error": f"Failed to fetch patients: {str(e)}"}, 500
+        return jsonify({"error": f"Failed to fetch patients: {str(e)}"}), 500
 
 
 # ============================================================

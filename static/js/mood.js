@@ -33,27 +33,39 @@ const MOOD_LABELS = {
  */
 async function initMoodPage() {
     console.log('[Mood] Initializing mood page...');
-    
-    // Add event listeners to mood buttons
-    const moodButtons = document.querySelectorAll('.mood-button');
-    moodButtons.forEach(button => {
-        button.addEventListener('click', () => handleMoodSelect(button.dataset.mood));
-    });
-    
-    // Add event listener to save button
-    const saveMoodBtn = document.getElementById('save-mood-btn');
-    if (saveMoodBtn) {
-        saveMoodBtn.addEventListener('click', () => {
-            if (MoodState.currentMood) {
-                submitMood(MoodState.currentMood, MoodState.currentNote);
-            }
+
+    // If template inline UI already bound click/save handlers, skip rebinding
+    // to avoid duplicate mood submissions.
+    if (!window.__moodUiBound) {
+        const moodButtons = document.querySelectorAll('.mood-button');
+        moodButtons.forEach(button => {
+            button.addEventListener('click', () => handleMoodSelect(button.dataset.mood));
         });
-    }
-    
-    // Add event listener to clear button
-    const clearMoodBtn = document.getElementById('clear-mood-btn');
-    if (clearMoodBtn) {
-        clearMoodBtn.addEventListener('click', clearMoodSelection);
+
+        const noteTextarea = document.getElementById('mood-note');
+        if (noteTextarea) {
+            noteTextarea.addEventListener('input', () => {
+                MoodState.currentNote = noteTextarea.value;
+            });
+        }
+
+        const saveMoodBtn = document.getElementById('save-mood-btn');
+        if (saveMoodBtn) {
+            saveMoodBtn.addEventListener('click', () => {
+                if (MoodState.currentMood) {
+                    const noteValue = noteTextarea ? noteTextarea.value : MoodState.currentNote;
+                    MoodState.currentNote = noteValue || '';
+                    submitMood(MoodState.currentMood, MoodState.currentNote);
+                }
+            });
+        }
+
+        const clearMoodBtn = document.getElementById('clear-mood-btn');
+        if (clearMoodBtn) {
+            clearMoodBtn.addEventListener('click', clearMoodSelection);
+        }
+    } else {
+        console.log('[Mood] Inline UI handlers active — loading data only');
     }
     
     // Load today's mood
@@ -143,6 +155,15 @@ async function submitMood(mood, note) {
     
     MoodState.isSubmitting = true;
     
+    // Show button loading state
+    const saveMoodBtn = document.getElementById('save-mood-btn');
+    if (saveMoodBtn) {
+        saveMoodBtn.disabled = true;
+        const originalText = saveMoodBtn.textContent;
+        saveMoodBtn.innerHTML = '⏳ Saving...';
+        saveMoodBtn.dataset.originalText = originalText;
+    }
+    
     try {
         const response = await fetch('/api/mood/entries', {
             method: 'POST',
@@ -160,6 +181,11 @@ async function submitMood(mood, note) {
             const error = await response.json();
             showMoodError(error.error || i18n.get('mood_error'));
             MoodState.isSubmitting = false;
+            // Restore button
+            if (saveMoodBtn) {
+                saveMoodBtn.disabled = false;
+                saveMoodBtn.textContent = saveMoodBtn.dataset.originalText || '💾 Save Mood';
+            }
             return;
         }
         
@@ -167,6 +193,8 @@ async function submitMood(mood, note) {
         console.log('[Mood] Mood entry created:', data);
         
         MoodState.todayEntry = data;
+        
+        // Show success message with proper animation
         showMoodSuccess(note ? i18n.get('mood_saved_with_note') : i18n.get('mood_saved'));
         
         // Update UI
@@ -178,6 +206,11 @@ async function submitMood(mood, note) {
     } catch (error) {
         console.error('[Mood] Error submitting mood:', error);
         showMoodError(i18n.get('mood_error'));
+        // Restore button
+        if (saveMoodBtn) {
+            saveMoodBtn.disabled = false;
+            saveMoodBtn.textContent = saveMoodBtn.dataset.originalText || '💾 Save Mood';
+        }
     } finally {
         MoodState.isSubmitting = false;
     }
@@ -356,6 +389,23 @@ function formatMoodTime(date) {
  */
 function showMoodError(message) {
     console.error('[Mood] Error:', message);
+    
+    // Show error message in a visible way
+    const errorAlert = document.createElement('div');
+    errorAlert.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+    errorAlert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    errorAlert.innerHTML = `
+        <strong>❌ Error:</strong> ${escapeHtml(message)}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    document.body.appendChild(errorAlert);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (errorAlert.parentNode) {
+            errorAlert.parentNode.removeChild(errorAlert);
+        }
+    }, 5000);
     alert(message);
 }
 
@@ -364,7 +414,37 @@ function showMoodError(message) {
  */
 function showMoodSuccess(message) {
     console.log('[Mood] Success:', message);
-    // Message is shown in the confirmation-section which is already displayed
+    
+    // Show confirmation alert with proper message
+    const confirmationSection = document.getElementById('confirmation-section');
+    const confirmationMessage = document.getElementById('confirmation-message');
+    const moodTimestamp = document.getElementById('mood-timestamp');
+    
+    if (confirmationSection && confirmationMessage) {
+        // Update message text
+        confirmationMessage.textContent = message || i18n.get('mood_saved') || 'Your mood has been saved!';
+        
+        // Add timestamp
+        if (moodTimestamp) {
+            const now = new Date();
+            moodTimestamp.textContent = '✓ ' + now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+        }
+        
+        // Ensure it's visible
+        confirmationSection.style.display = 'block';
+        
+        // Add success animation class
+        confirmationSection.classList.add('show-success');
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            confirmationSection.classList.remove('show-success');
+        }, 5000);
+    }
 }
 
 /**
