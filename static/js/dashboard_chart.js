@@ -156,7 +156,7 @@ async function selectPatient(patientId) {
         const moodResponse = await fetch(`/api/mood/today?patient_id=${patientId}`, fetchOptions);
         const moodData = moodResponse.ok ? await moodResponse.json() : { has_entry: false, entry: null };
         
-        const safetyResponse = await fetch(`/api/safety/alerts`, fetchOptions);
+        const safetyResponse = await fetch(`/api/safety/alerts?patient_id=${patientId}`, fetchOptions);
         const safetyAlertsData = safetyResponse.ok ? await safetyResponse.json() : { success: false, alerts: [] };
         
         dashboardState.progressData = progressData || [];
@@ -526,8 +526,8 @@ function resolveAlertFromDashboard(alertId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Reload alerts
-                fetch(`/api/safety/alerts`, { credentials: 'include' })
+                // Reload alerts for the currently selected patient
+                fetch(`/api/safety/alerts?patient_id=${dashboardState.currentPatientId}`, { credentials: 'include' })
                     .then(r => r.json())
                     .then(d => updateSafetyAlerts(d.alerts || []))
                     .catch(e => console.error('Error reloading alerts:', e));

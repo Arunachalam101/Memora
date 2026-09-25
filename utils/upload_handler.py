@@ -115,9 +115,11 @@ class UploadHandler:
         try:
             file.save(str(full_path))
             
-            # Return relative path for database storage
-            # Example: "/uploads/memory/1_person_1695484800_a7f3k8b2.jpg"
-            relative_path = f'/uploads/memory/{safe_filename}'
+            # Return relative path for database storage.
+            # UPLOAD_FOLDER is inside the Flask static folder, so the URL
+            # a browser can actually load must include the "/static" prefix.
+            # Example: "/static/uploads/memory/1_person_1695484800_a7f3k8b2.jpg"
+            relative_path = f'/static/uploads/memory/{safe_filename}'
             
             return True, relative_path
         

@@ -139,7 +139,12 @@ def get_safety_status():
 def get_safety_alerts():
     """
     Caregiver endpoint to get recent alerts for authorized patients.
-    
+
+    Query Parameters:
+        patient_id: Optional. When provided, only that patient's alerts
+            are returned (used by the caregiver dashboard's per-patient
+            view). When omitted, alerts for all patients are returned.
+
     Returns only alerts for patients the caregiver can view.
     """
     user_id = session.get('user_id')
@@ -157,10 +162,16 @@ def get_safety_alerts():
     from datetime import timedelta
     recent_cutoff = datetime.utcnow() - timedelta(hours=24)
     
-    alerts = SafetyAlert.query.filter(
+    query = SafetyAlert.query.filter(
         (SafetyAlert.status == 'active') |
         (SafetyAlert.resolved_at >= recent_cutoff)
-    ).order_by(SafetyAlert.created_at.desc()).all()
+    )
+
+    patient_id = request.args.get('patient_id', type=int)
+    if patient_id is not None:
+        query = query.filter(SafetyAlert.patient_id == patient_id)
+
+    alerts = query.order_by(SafetyAlert.created_at.desc()).all()
     
     return jsonify({
         'success': True,
