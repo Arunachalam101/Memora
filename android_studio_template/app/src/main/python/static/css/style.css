@@ -1,0 +1,2453 @@
+/* ============================================================
+   MEMORA - Elder-Friendly Cognitive Support App
+   CSS Stylesheet - Phase 2
+   ============================================================ */
+
+/* ============================================================
+   BASE STYLES & TYPOGRAPHY
+   ============================================================ */
+
+:root {
+    /* Color Palette */
+    --primary-color: #4A90D9;
+    --secondary-color: #5DADE2;
+    --success-color: #27AE60;
+    --warning-color: #F39C12;
+    --danger-color: #E74C3C;
+    --light-bg: #F5F7FA;
+    --white: #FFFFFF;
+    --dark-text: #2C3E50;
+    --light-text: #7F8C8D;
+    --border-color: #BDC3C7;
+    
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    
+    /* Typography */
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', 
+                   'Arial', sans-serif;
+    --font-size-body: 1.125rem;
+    --font-size-h1: 2.5rem;
+    --font-size-h2: 2rem;
+    --font-size-h3: 1.5rem;
+    --border-radius: 16px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-family);
+    font-size: var(--font-size-body);
+    line-height: 1.6;
+    color: var(--dark-text);
+    background-color: var(--light-bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+
+h1 {
+    font-size: var(--font-size-h1);
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    color: var(--dark-text);
+}
+
+h2 {
+    font-size: var(--font-size-h2);
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    color: var(--dark-text);
+}
+
+h3 {
+    font-size: var(--font-size-h3);
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    color: var(--dark-text);
+}
+
+p {
+    margin-bottom: var(--spacing-sm);
+    color: var(--dark-text);
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    color: var(--light-text);
+    margin-bottom: var(--spacing-md);
+}
+
+/* ============================================================
+   NAVBAR & NAVIGATION
+   ============================================================ */
+
+.navbar {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: var(--spacing-md) 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 var(--spacing-md);
+}
+
+.navbar-brand h1 {
+    font-size: var(--font-size-h2);
+    color: var(--white);
+    margin: 0;
+}
+
+.navbar-menu {
+    list-style: none;
+    display: flex;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.navbar-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-xs);
+}
+
+.navbar-toggle span {
+    display: block;
+    width: 26px;
+    height: 3px;
+    background-color: var(--white);
+    border-radius: 2px;
+}
+
+.nav-link {
+    color: var(--white);
+    text-decoration: none;
+    font-size: var(--font-size-body);
+    font-weight: 500;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.logout-link {
+    background-color: var(--danger-color);
+    padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.logout-link:hover {
+    background-color: #C0392B;
+}
+
+/* ============================================================
+   LANGUAGE TOGGLE - Phase 8
+   ============================================================ */
+
+.nav-separator {
+    width: 1px;
+    height: 24px;
+    background-color: rgba(255, 255, 255, 0.3);
+    margin: 0 var(--spacing-sm);
+}
+
+.language-toggle-container {
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+    margin-left: var(--spacing-sm);
+}
+
+.language-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--white);
+    white-space: nowrap;
+}
+
+.language-toggle-btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--white);
+    border: 2px solid transparent;
+    padding: var(--spacing-xs) 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 50px;
+    text-align: center;
+}
+
+.language-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.language-toggle-btn.active {
+    background-color: var(--white);
+    color: var(--primary-color);
+    border-color: var(--white);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.language-toggle-btn.active:hover {
+    background-color: var(--white);
+    transform: scale(1.08);
+}
+
+/* ============================================================
+   MAIN CONTENT & LAYOUT
+   ============================================================ */
+
+.main-content {
+    flex: 1;
+    padding: var(--spacing-lg);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+/* ============================================================
+   FORMS & INPUTS
+   ============================================================ */
+
+.form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-label {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    color: var(--dark-text);
+}
+
+.form-input {
+    width: 100%;
+    padding: var(--spacing-md);
+    font-size: var(--font-size-body);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-family: var(--font-family);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+}
+
+.form-input::placeholder {
+    color: var(--light-text);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    font-family: var(--font-family);
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #2E5C8A;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 144, 217, 0.4);
+}
+
+.btn-primary:disabled {
+    background-color: #BDC3C7;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: var(--white);
+}
+
+.btn-secondary:hover {
+    background-color: #3498DB;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(93, 173, 226, 0.4);
+}
+
+.btn-large {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 1.25rem;
+    min-height: 60px;
+    width: 100%;
+    margin-top: var(--spacing-md);
+}
+
+.btn-game {
+    width: 100%;
+    margin-top: var(--spacing-sm);
+}
+
+/* ============================================================
+   CARDS & SECTIONS
+   ============================================================ */
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 200px);
+    padding: var(--spacing-lg);
+}
+
+.login-card {
+    background: var(--white);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.login-header h1 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+.login-header p {
+    color: var(--light-text);
+    font-size: 1.125rem;
+}
+
+.login-form {
+    margin: var(--spacing-lg) 0;
+}
+
+.login-footer {
+    text-align: center;
+    color: var(--light-text);
+    margin-top: var(--spacing-lg);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.welcome-card {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--white);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+}
+
+.welcome-card h1 {
+    color: var(--white);
+    font-size: var(--font-size-h1);
+}
+
+.welcome-card .subtitle {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.placeholder-section {
+    background: var(--white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-lg);
+    border-left: 4px solid var(--primary-color);
+}
+
+.placeholder-section h2 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+.placeholder-section p {
+    color: var(--light-text);
+    margin-bottom: var(--spacing-sm);
+}
+
+.placeholder-section .btn {
+    margin-top: var(--spacing-md);
+}
+
+.placeholder-text {
+    font-style: italic;
+    color: var(--light-text);
+}
+
+/* ============================================================
+   GAMES GRID
+   ============================================================ */
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.game-card {
+    background: var(--white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.game-card:hover:not(.placeholder) {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    border-color: var(--primary-color);
+}
+
+.game-card.placeholder {
+    opacity: 0.8;
+    background-color: #F9FAFB;
+}
+
+.game-card h2 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+.game-card p {
+    color: var(--dark-text);
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.6;
+}
+
+/* ============================================================
+   DASHBOARD GRID
+   ============================================================ */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.dashboard-card {
+    background: var(--white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-left: 5px solid var(--primary-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover:not(.placeholder) {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-card.placeholder {
+    opacity: 0.8;
+    background-color: #F9FAFB;
+}
+
+.dashboard-card h2 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+
+.back-link {
+    text-align: center;
+    margin-top: var(--spacing-xl);
+}
+
+.back-link .btn {
+    display: inline-flex;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.footer {
+    background-color: var(--dark-text);
+    color: var(--white);
+    text-align: center;
+    padding: var(--spacing-lg);
+    margin-top: auto;
+    font-size: 0.95rem;
+}
+
+.footer p {
+    margin: 0;
+    color: var(--white);
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+
+@media (max-width: 768px) {
+    :root {
+        --font-size-body: 1rem;
+        --font-size-h1: 2rem;
+        --font-size-h2: 1.5rem;
+        --font-size-h3: 1.25rem;
+    }
+
+    .navbar-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: var(--spacing-md);
+    }
+
+    .navbar-toggle {
+        display: flex;
+    }
+
+    .navbar-menu {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+        justify-content: center;
+    }
+
+    .navbar-menu.open {
+        display: flex;
+    }
+
+    .navbar-brand h1 {
+        font-size: 1.5rem;
+    }
+
+    .login-card {
+        padding: var(--spacing-lg);
+    }
+
+    .main-content {
+        padding: var(--spacing-md);
+    }
+
+    .games-grid,
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-large {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 1rem;
+        min-height: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --font-size-body: 0.95rem;
+        --font-size-h1: 1.75rem;
+        --font-size-h2: 1.25rem;
+        --spacing-lg: 1.5rem;
+    }
+
+    .navbar {
+        padding: var(--spacing-sm) 0;
+    }
+
+    .navbar-brand h1 {
+        font-size: 1.25rem;
+    }
+
+    .navbar-menu {
+        gap: var(--spacing-sm);
+    }
+
+    .login-card {
+        padding: var(--spacing-md);
+    }
+
+    .welcome-card {
+        padding: var(--spacing-lg);
+    }
+
+    .main-content {
+        padding: var(--spacing-sm);
+    }
+
+    .reminder-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .reminders-table {
+        font-size: 0.9rem;
+    }
+
+    .reminders-table th,
+    .reminders-table td {
+        padding: var(--spacing-xs);
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-row .form-group {
+        flex: 1 1 100%;
+    }
+}
+
+/* ============================================================
+   REMINDERS - PHASE 3
+   ============================================================ */
+
+.reminders-section {
+    background: var(--white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-lg);
+}
+
+.reminders-section h2 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-lg);
+}
+
+.reminders-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.reminder-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    background: var(--white);
+    border: 2px solid var(--border-color);
+    border-left: 5px solid var(--primary-color);
+    padding: var(--spacing-md);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.reminder-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(74, 144, 217, 0.15);
+    transform: translateX(4px);
+}
+
+.reminder-card.reminder-done {
+    opacity: 0.6;
+    background-color: #F9FAFB;
+}
+
+.reminder-card.reminder-done .reminder-title {
+    text-decoration: line-through;
+    color: var(--light-text);
+}
+
+.reminder-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+    text-align: center;
+    width: 60px;
+}
+
+.reminder-content {
+    flex: 1;
+}
+
+.reminder-title {
+    font-size: var(--font-size-h3);
+    margin: 0 0 var(--spacing-xs) 0;
+    color: var(--dark-text);
+}
+
+.reminder-meta {
+    display: flex;
+    gap: var(--spacing-md);
+    font-size: 1rem;
+    color: var(--light-text);
+    align-items: center;
+}
+
+.reminder-time {
+    font-weight: 600;
+}
+
+.reminder-type {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: #F0F4FA;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.reminder-actions {
+    flex-shrink: 0;
+}
+
+.btn-sm {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.95rem;
+    min-height: 40px;
+    padding: 10px 16px;
+}
+
+.btn-todo {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.btn-todo:hover {
+    background-color: #2E5C8A;
+}
+
+.btn-done {
+    background-color: var(--success-color);
+    color: var(--white);
+}
+
+.btn-done:hover {
+    background-color: #1E8449;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: var(--white);
+}
+
+.btn-danger:hover {
+    background-color: #C0392B;
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--light-text);
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+.loading {
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--light-text);
+}
+
+/* ============================================================
+   REMINDER FORM - CAREGIVER DASHBOARD
+   ============================================================ */
+
+.dashboard-reminders-section {
+    background: var(--white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.add-reminder-container {
+    background-color: #F9FAFB;
+    padding: var(--spacing-lg);
+    border-radius: 8px;
+    margin-bottom: var(--spacing-lg);
+    border-left: 4px solid var(--primary-color);
+}
+
+.reminder-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.reminder-form h3 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+.form-row {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.form-input,
+.form-label {
+    font-size: 1.05rem;
+}
+
+.reminders-management {
+    margin-top: var(--spacing-lg);
+}
+
+.reminders-management h3 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+}
+
+/* ============================================================
+   REMINDERS TABLE - CAREGIVER DASHBOARD
+   ============================================================ */
+
+.reminders-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.reminders-table thead {
+    background-color: #F0F4FA;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.reminders-table th {
+    padding: var(--spacing-md);
+    text-align: left;
+    font-weight: 600;
+    color: var(--dark-text);
+    font-size: 1.05rem;
+}
+
+.reminders-table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid #E8E8E8;
+}
+
+.reminders-table tbody tr:hover {
+    background-color: #F9FAFB;
+}
+
+.reminders-table .reminder-row.done {
+    opacity: 0.6;
+    background-color: #F5F9F5;
+}
+
+.reminders-table .reminder-row.done .title {
+    text-decoration: line-through;
+    color: var(--light-text);
+}
+
+.reminders-table .time {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.reminders-table .type {
+    font-size: 0.95rem;
+}
+
+.type-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: var(--white);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.status-pending {
+    background-color: #FFE8CC;
+    color: #D97706;
+}
+
+.status-done {
+    background-color: #DBEAFE;
+    color: #1E40AF;
+}
+
+.reminders-table .actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.manage-reminders-list {
+    margin-top: var(--spacing-lg);
+}
+
+/* ============================================================
+   MESSAGE STYLES
+   ============================================================ */
+
+.error-message,
+.success-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--border-radius);
+    z-index: 1000;
+    font-weight: 500;
+    animation: slideIn 0.3s ease;
+}
+
+.error-message {
+    background-color: var(--danger-color);
+    color: var(--white);
+}
+
+.success-message {
+    background-color: var(--success-color);
+    color: var(--white);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ============================================================
+   GAMES - PHASE 4
+   ============================================================ */
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+}
+
+.game-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    color: var(--dark-text);
+    transition: all 0.3s ease;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+}
+
+.game-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgba(74, 144, 217, 0.2);
+    border-color: var(--primary-color);
+}
+
+.game-icon {
+    font-size: 3.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.game-card h2 {
+    text-align: center;
+    margin-bottom: var(--spacing-sm);
+    color: var(--primary-color);
+}
+
+.game-description {
+    text-align: center;
+    font-size: 1rem;
+    color: var(--light-text);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.5;
+}
+
+/* ============================================================
+   GAME CONTAINER & HEADER
+   ============================================================ */
+
+.game-container {
+    padding: var(--spacing-lg);
+}
+
+.game-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.game-header h1 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+}
+
+.difficulty-badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: #FFF8E7;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    border: 2px solid var(--warning-color);
+    color: var(--dark-text);
+}
+
+.game-stats {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+    background: #F0F4FA;
+    padding: var(--spacing-md);
+    border-radius: 12px;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.stat-label {
+    font-size: 0.95rem;
+    color: var(--light-text);
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* ============================================================
+   MEMORY MATCH GAME
+   ============================================================ */
+
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.memory-card {
+    aspect-ratio: 1;
+    perspective: 1000px;
+    cursor: pointer;
+    position: relative;
+    height: auto;
+    min-height: 100px;
+}
+
+.memory-card .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.memory-card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.memory-card .card-front,
+.memory-card .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.memory-card .card-front {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--white);
+    border: 3px solid var(--primary-color);
+}
+
+.memory-card .card-back {
+    background: var(--white);
+    border: 3px solid var(--border-color);
+    color: var(--dark-text);
+    transform: rotateY(180deg);
+}
+
+.memory-card.matched .card-front,
+.memory-card.matched .card-back {
+    opacity: 0.5;
+    cursor: default;
+}
+
+@media (max-width: 768px) {
+    .game-board {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-sm);
+    }
+    
+    .memory-card .card-front,
+    .memory-card .card-back {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-board {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+    }
+    
+    .memory-card {
+        min-height: 80px;
+    }
+    
+    .memory-card .card-front,
+    .memory-card .card-back {
+        font-size: 1.5rem;
+    }
+}
+
+/* ============================================================
+   ATTENTION TEST GAME
+   ============================================================ */
+
+.attention-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.attention-button {
+    aspect-ratio: 1;
+    background: var(--white);
+    border: 3px solid var(--primary-color);
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: var(--spacing-sm);
+    font-size: 0;
+}
+
+.shape-emoji {
+    font-size: 2.5rem;
+    transition: transform 0.2s ease;
+}
+
+.attention-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(74, 144, 217, 0.2);
+}
+
+.attention-button:active {
+    transform: scale(0.95);
+}
+
+.attention-button.feedback-correct {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    animation: pulse 0.5s ease;
+}
+
+.attention-button.feedback-incorrect {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+    animation: shake 0.3s ease;
+}
+
+.attention-button.feedback-target {
+    background-color: var(--warning-color);
+    border-color: var(--warning-color);
+    animation: highlight 0.5s ease;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes highlight {
+    0%, 100% { box-shadow: 0 0 0 0 var(--warning-color); }
+    50% { box-shadow: 0 0 0 10px rgba(243, 156, 18, 0.2); }
+}
+
+@media (max-width: 768px) {
+    .attention-grid {
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+        gap: var(--spacing-sm);
+    }
+    
+    .shape-emoji {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .attention-grid {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        gap: var(--spacing-xs);
+    }
+    
+    .shape-emoji {
+        font-size: 1.5rem;
+    }
+}
+
+/* ============================================================
+   COMPLETION SCREEN
+   ============================================================ */
+
+.completion-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    backdrop-filter: blur(2px);
+}
+
+.completion-card {
+    background: var(--white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    text-align: center;
+    max-width: 500px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.5s ease;
+}
+
+.completion-card h2 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-lg);
+    font-size: 2rem;
+}
+
+.score-display {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+    padding: var(--spacing-lg);
+    background: #F0F4FA;
+    border-radius: 12px;
+}
+
+.score-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.score-label {
+    font-size: 0.95rem;
+    color: var(--light-text);
+    font-weight: 500;
+}
+
+.score-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .completion-card {
+        margin: var(--spacing-md);
+        padding: var(--spacing-md);
+    }
+    
+    .completion-card h2 {
+        font-size: 1.5rem;
+    }
+    
+    .score-display {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+        padding: var(--spacing-md);
+    }
+    
+    .score-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* ============================================================
+   CAREGIVER DASHBOARD - Phase 6
+   ============================================================ */
+
+.patient-selector-section {
+    background: var(--light-bg);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.patient-selector-section label {
+    font-weight: 600;
+    color: var(--dark-text);
+    white-space: nowrap;
+}
+
+.form-select {
+    flex: 1;
+    padding: var(--spacing-sm);
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    font-size: var(--font-size-body);
+    background: var(--white);
+    color: var(--dark-text);
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.form-select:hover,
+.form-select:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+}
+
+/* ============================================================
+   PATIENT OVERVIEW SECTION
+   ============================================================ */
+
+.patient-overview-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.overview-header {
+    margin-bottom: var(--spacing-md);
+}
+
+.overview-header h2 {
+    color: var(--primary-color);
+    font-size: var(--font-size-h2);
+}
+
+.overview-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.stat-card {
+    background: var(--white);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--light-text);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* ============================================================
+   PROGRESS CHARTS SECTION
+   ============================================================ */
+
+.progress-charts-section {
+    background: var(--white);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.progress-charts-section h2 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-lg);
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.chart-wrapper {
+    background: var(--light-bg);
+    padding: var(--spacing-md);
+    border-radius: 12px;
+}
+
+.chart-wrapper h3 {
+    color: var(--dark-text);
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+}
+
+.chart-wrapper canvas {
+    max-height: 300px;
+}
+
+.chart-message {
+    background: #FFF8E7;
+    border-left: 4px solid var(--warning-color);
+    padding: var(--spacing-md);
+    border-radius: 8px;
+    color: var(--dark-text);
+    font-size: 1rem;
+    text-align: center;
+}
+
+.chart-message p {
+    margin: 0;
+}
+
+/* ============================================================
+   ACTIVITY TABLE SECTION
+   ============================================================ */
+
+.recent-activity-section {
+    background: var(--white);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.recent-activity-section h2 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.activity-table thead {
+    background: var(--light-bg);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.activity-table th {
+    padding: var(--spacing-md);
+    text-align: left;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+
+.activity-table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--dark-text);
+}
+
+.activity-table tbody tr {
+    transition: background-color 0.2s;
+}
+
+.activity-table tbody tr:hover {
+    background-color: var(--light-bg);
+}
+
+.activity-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.activity-table .loading-row td {
+    text-align: center;
+    font-style: italic;
+    color: var(--light-text);
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* ============================================================
+   DASHBOARD REMINDER SECTION (Phase 3)
+   ============================================================ */
+
+.dashboard-reminders-section {
+    background: var(--white);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.dashboard-reminders-section h2 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+}
+
+/* ============================================================
+   RESPONSIVE DASHBOARD STYLES
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .patient-selector-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .patient-selector-section label {
+        white-space: normal;
+    }
+    
+    .overview-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .charts-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .activity-table {
+        font-size: 0.85rem;
+    }
+    
+    .activity-table th,
+    .activity-table td {
+        padding: var(--spacing-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    .patient-selector-section {
+        padding: var(--spacing-sm);
+    }
+    
+    .overview-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        padding: var(--spacing-sm);
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .progress-charts-section {
+        padding: var(--spacing-md);
+    }
+    
+    .charts-container {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .chart-wrapper {
+        padding: var(--spacing-sm);
+    }
+    
+    .recent-activity-section {
+        padding: var(--spacing-md);
+    }
+    
+    .activity-table {
+        font-size: 0.75rem;
+    }
+    
+    .activity-table th,
+    .activity-table td {
+        padding: 0.5rem;
+    }
+}
+
+/* ============================================================
+   VOICE ASSISTANT - Phase 7
+   ============================================================ */
+
+.voice-assistant-section {
+    background: linear-gradient(135deg, #4A90D9 0%, #357ABD 100%);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    color: var(--white);
+    box-shadow: 0 4px 15px rgba(74, 144, 217, 0.3);
+}
+
+.voice-assistant-section h2 {
+    color: var(--white);
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+    font-size: 1.5rem;
+}
+
+.voice-buttons-container {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-md);
+}
+
+.btn-voice {
+    font-size: 1rem;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    min-width: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-ask {
+    background: var(--white);
+    color: #4A90D9;
+}
+
+.btn-ask:hover:not(:disabled) {
+    background: #F0F7FF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-ask.listening {
+    background: #FFE066;
+    color: #333;
+    animation: pulse 1s infinite;
+}
+
+.btn-read {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--white);
+    border: 2px solid var(--white);
+}
+
+.btn-read:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-voice:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.voice-status {
+    font-size: 0.95rem;
+    font-weight: 600;
+    min-height: 24px;
+    margin-bottom: var(--spacing-sm);
+    animation: fadeInOut 0.5s ease;
+}
+
+.voice-hint {
+    font-size: 0.9rem;
+    opacity: 0.95;
+}
+
+/* ============================================================
+   SAFETY ALERTS SECTION (Phase 10E)
+   ============================================================ */
+
+.safety-alerts-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.safety-alerts-section h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #2C3E50;
+}
+
+.safety-alerts-list {
+    min-height: 60px;
+}
+
+.no-alerts-message {
+    background: #f0f8f0;
+    border-left: 4px solid #28a745;
+    padding: 15px;
+    border-radius: 4px;
+    color: #666;
+    font-size: 16px;
+}
+
+.alert-item {
+    background: #fff;
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+.alert-item.active {
+    border-color: #dc3545;
+    background: #fff5f5;
+}
+
+.alert-item.resolved {
+    border-color: #28a745;
+    background: #f0f8f0;
+    opacity: 0.8;
+}
+
+.alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.alert-type {
+    font-size: 18px;
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.alert-item.resolved .alert-type {
+    color: #28a745;
+}
+
+.alert-status {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.alert-item.active .alert-status {
+    background: #dc3545;
+    color: white;
+}
+
+.alert-item.resolved .alert-status {
+    background: #28a745;
+    color: white;
+}
+
+.alert-body {
+    margin-bottom: 12px;
+}
+
+.alert-time {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.alert-message {
+    font-size: 16px;
+    color: #333;
+    margin: 0;
+}
+
+.alert-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-resolve {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-resolve:hover {
+    background-color: #218838;
+}
+
+.btn-resolve:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+}
+
+/* ============================================================
+   MOOD TRACKER SECTION (Phase 10D)
+   ============================================================ */
+
+/* ============================================================
+   MOOD TRACKER SECTION (Phase 10D)
+   ============================================================ */
+
+.mood-selector {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+.mood-button {
+    width: 120px;
+    height: 120px;
+    border-radius: 15px;
+    font-size: 1.5em;
+    border: 3px solid #ccc;
+    background-color: #f8f9fa;
+    color: #333;
+    transition: all 0.3s ease;
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.mood-button:hover {
+    border-color: #007bff;
+    background-color: #e7f3ff;
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.mood-button.selected {
+    border-color: #28a745;
+    background-color: #d4edda;
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+    transform: scale(1.1);
+}
+
+.mood-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.mood-card {
+    background-color: #f8f9fa;
+    border-left: 5px solid #007bff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.mood-card-emoji {
+    font-size: 2em;
+    margin-right: 15px;
+    vertical-align: middle;
+}
+
+.mood-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.mood-card-date {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.mood-card-time {
+    font-size: 0.9em;
+    color: #666;
+    margin-left: 10px;
+}
+
+.mood-card-note {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 5px;
+    font-style: italic;
+    color: #555;
+}
+
+@media (max-width: 768px) {
+    .mood-button {
+        width: 100px;
+        height: 100px;
+        font-size: 1.2em;
+    }
+
+    .mood-selector {
+        gap: 10px;
+        padding: 10px;
+    }
+}
+
+/* ============================================================
+   SAFETY PAGE SECTION (Phase 10E)
+   ============================================================ */
+
+.safety-page {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.safety-status-card {
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    margin: 30px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.safety-icon {
+    font-size: 60px;
+    line-height: 1;
+}
+
+.safety-status-card h2 {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 0;
+    color: #28a745;
+}
+
+.safety-status-card.alert-active .safety-icon {
+    font-size: 60px;
+}
+
+.safety-status-card.alert-active h2 {
+    color: #dc3545;
+}
+
+.safety-status-card p {
+    font-size: 18px;
+    margin: 10px 0 0 0;
+    color: #666;
+}
+
+.emergency-button-container {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.btn-emergency {
+    background-color: #dc3545;
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    padding: 30px 60px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 400px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-emergency:hover:not(:disabled) {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+.btn-emergency:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.emergency-hint {
+    font-size: 16px;
+    color: #666;
+    margin-top: 15px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    font-size: 16px;
+}
+
+.navigation-buttons {
+    margin-top: 40px;
+    text-align: center;
+}
+
+/* ============================================================
+   VOICE ASSISTANT ANIMATIONS
+   ============================================================ */
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* ============================================================
+   VOICE ASSISTANT RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .voice-assistant-section {
+        padding: var(--spacing-md);
+    }
+    
+    .voice-assistant-section h2 {
+        font-size: 1.2rem;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .voice-buttons-container {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .btn-voice {
+        width: 100%;
+        min-width: unset;
+        font-size: 0.95rem;
+        padding: var(--spacing-md);
+    }
+    
+    .voice-hint {
+        font-size: 0.85rem;
+    }
+}
+
+/* ============================================================
+   LOADING STATES & INDICATORS (Phase 9)
+   ============================================================ */
+
+.loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    gap: var(--spacing-md);
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #f0f0f0;
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.loading-indicator p {
+    color: var(--light-text);
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 500;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Loading skeleton screen */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ============================================================
+   ERROR & SUCCESS MESSAGES (Phase 9)
+   ============================================================ */
+
+.error-message,
+.success-message {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: 8px;
+    margin-bottom: var(--spacing-md);
+    font-weight: 500;
+    animation: slideDown 0.3s ease-out;
+}
+
+.error-message {
+    background-color: #fee;
+    border-left: 4px solid var(--danger-color);
+    color: #c33;
+}
+
+.success-message {
+    background-color: #efe;
+    border-left: 4px solid var(--success-color);
+    color: #270;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   VISUAL CONSISTENCY IMPROVEMENTS (Phase 9)
+   ============================================================ */
+
+/* Consistent padding for all containers */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* Ensure form fields have consistent styling */
+.form-group {
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: var(--font-size-body);
+    color: var(--dark-text);
+}
+
+/* Consistent card styling */
+.card,
+.game-card {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover,
+.game-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Consistent link styling */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #2E5C8A;
+    text-decoration: underline;
+}
+
+/* Consistent table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--spacing-md);
+}
+
+table th {
+    background-color: var(--light-bg);
+    padding: var(--spacing-md);
+    text-align: left;
+    font-weight: 600;
+    color: var(--dark-text);
+    border-bottom: 2px solid var(--border-color);
+}
+
+table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+table tr:hover {
+    background-color: var(--light-bg);
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN IMPROVEMENTS (Phase 9)
+   ============================================================ */
+
+@media (max-width: 768px) {
+    :root {
+        --font-size-h1: 1.75rem;
+        --font-size-h2: 1.5rem;
+        --font-size-h3: 1.25rem;
+        --font-size-body: 1rem;
+        --spacing-lg: 1.5rem;
+        --spacing-md: 1rem;
+    }
+    
+    .container {
+        padding: var(--spacing-md);
+    }
+    
+    .btn {
+        min-height: 44px;
+        font-size: 1rem;
+    }
+    
+    table {
+        font-size: 0.875rem;
+    }
+    
+    table th,
+    table td {
+        padding: var(--spacing-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --font-size-h1: 1.5rem;
+        --font-size-h2: 1.25rem;
+        --font-size-h3: 1.125rem;
+        --font-size-body: 0.95rem;
+        --spacing-lg: 1rem;
+        --spacing-md: 0.75rem;
+        --border-radius: 12px;
+    }
+    
+    .container {
+        padding: var(--spacing-md);
+    }
+    
+    .card,
+    .game-card {
+        padding: var(--spacing-md);
+    }
+    
+    .btn {
+        padding: var(--spacing-sm);
+        min-height: 40px;
+        font-size: 0.95rem;
+    }
+    
+    .btn-large {
+        padding: var(--spacing-md);
+    }
+    
+    .spinner {
+        width: 32px;
+        height: 32px;
+        border-width: 3px;
+    }
+}
+
+/* ============================================================
+   ANIMATIONS FOR UI FEEDBACK
+   ============================================================ */
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.show-success {
+    animation: fadeIn 0.3s ease !important;
+}
+
+.alert-active {
+    background-color: #f8d7da !important;
+    border-color: #f5c6cb !important;
+    color: #721c24 !important;
+}

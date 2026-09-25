@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Memory Rescue - MEMORA{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            
+            <!-- PAGE HEADER -->
+            <div class="mb-4">
+                <h1 data-i18n-key="memory_rescue_title">Memory Rescue</h1>
+                <p class="text-muted" data-i18n-key="memory_rescue_subtitle">Ask me about people, places, and memories</p>
+            </div>
+            
+            <!-- VOICE INPUT SECTION -->
+            <div class="card mb-4 border-primary">
+                <div class="card-body">
+                    <h5 class="card-title" data-i18n-key="memory_rescue_voice_title">🎤 Voice Query</h5>
+                    <p class="card-text text-muted" data-i18n-key="memory_rescue_voice_hint">Tap the button and ask about a person, place, or memory</p>
+                    
+                    <!-- Voice Button & Status -->
+                    <div class="mb-3">
+                        <button id="memory-voice-button" class="btn btn-lg btn-primary" data-i18n-key="voice_ask_memora">
+                            🎤 Ask Memora
+                        </button>
+                        <span id="memory-voice-status" class="ms-2"></span>
+                    </div>
+                    
+                    <!-- Query Display -->
+                    <div id="memory-query-display" class="alert alert-info" style="display: none;">
+                        <strong data-i18n-key="memory_rescue_you_asked">You asked:</strong>
+                        <span id="memory-query-text"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RESPONSE SECTION -->
+            <div class="card mb-4" id="memory-response-section" style="display: none;">
+                <div class="card-body">
+                    <h5 class="card-title" data-i18n-key="memory_rescue_response">Response</h5>
+                    
+                    <!-- Response Text -->
+                    <div id="memory-response-text" class="alert alert-success mb-3">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                    
+                    <!-- Speak Button -->
+                    <button id="memory-speak-button" class="btn btn-secondary btn-sm">
+                        🔊 <span data-i18n-key="btn_speak">Speak</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- SEARCH RESULTS SECTION -->
+            <div class="card mb-4" id="memory-results-section" style="display: none;">
+                <div class="card-body">
+                    <h5 class="card-title" data-i18n-key="memory_rescue_results">Found Information</h5>
+                    
+                    <!-- People Results -->
+                    <div id="memory-people-results" class="mb-3" style="display: none;">
+                        <h6 data-i18n-key="tab_people">People</h6>
+                        <div id="memory-people-list" class="row g-2">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Places Results -->
+                    <div id="memory-places-results" class="mb-3" style="display: none;">
+                        <h6 data-i18n-key="tab_places">Places</h6>
+                        <div id="memory-places-list" class="row g-2">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Memories Results -->
+                    <div id="memory-memories-results" class="mb-3" style="display: none;">
+                        <h6 data-i18n-key="tab_memories">Memories</h6>
+                        <div id="memory-memories-list" class="row g-2">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ERROR DISPLAY -->
+            <div id="memory-error-container"></div>
+            
+            <!-- HELP TEXT -->
+            <div class="alert alert-light border">
+                <h6 data-i18n-key="memory_rescue_help_title">💡 How to Use Memory Rescue</h6>
+                <ul class="mb-0">
+                    <li data-i18n-key="memory_rescue_help_line1">Tap the blue "Ask Memora" button to start listening</li>
+                    <li data-i18n-key="memory_rescue_help_line2">Ask questions like: "Who is Anil?" or "Tell me about home"</li>
+                    <li data-i18n-key="memory_rescue_help_line3">I will search your saved memories and read the information to you</li>
+                    <li data-i18n-key="memory_rescue_help_line4">If I don't find the information, ask your caregiver to add it to your Memory Album</li>
+                </ul>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<!-- Include the memory rescue JavaScript -->
+<script src="{{ url_for('static', filename='js/memory_rescue.js') }}"></script>
+
+{% endblock %}

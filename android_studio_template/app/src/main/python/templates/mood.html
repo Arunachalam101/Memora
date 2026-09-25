@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Page Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 data-i18n-key="mood_heading" class="display-4">🎭 Check Your Mood</h1>
+            <p class="lead text-muted" data-i18n-key="mood_subtitle">How are you feeling today?</p>
+        </div>
+    </div>
+
+    <!-- Mood Selection Buttons -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="mood-selector" id="mood-selector">
+                <button type="button" class="mood-button btn btn-lg" data-mood="very_happy" data-i18n-key="mood_label_very_happy">
+                    😊 Very Happy
+                </button>
+                <button type="button" class="mood-button btn btn-lg" data-mood="happy" data-i18n-key="mood_label_happy">
+                    🙂 Happy
+                </button>
+                <button type="button" class="mood-button btn btn-lg" data-mood="okay" data-i18n-key="mood_label_okay">
+                    😐 Okay
+                </button>
+                <button type="button" class="mood-button btn btn-lg" data-mood="sad" data-i18n-key="mood_label_sad">
+                    😟 Sad
+                </button>
+                <button type="button" class="mood-button btn btn-lg" data-mood="very_sad" data-i18n-key="mood_label_very_sad">
+                    😔 Very Sad
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Reliable mood UI + save (works even if external mood.js fails)
+        (function() {
+            let selectedMood = null;
+            let isSaving = false;
+
+            function setSelectedMood(mood) {
+                selectedMood = mood;
+                if (typeof MoodState !== 'undefined') {
+                    MoodState.currentMood = mood;
+                }
+                document.querySelectorAll('.mood-button').forEach(btn => {
+                    btn.classList.toggle('selected', btn.dataset.mood === mood);
+                });
+                const noteSection = document.getElementById('note-section');
+                const submitSection = document.getElementById('submit-section');
+                const confirmationSection = document.getElementById('confirmation-section');
+                if (noteSection) noteSection.style.display = 'block';
+                if (submitSection) submitSection.style.display = 'block';
+                if (confirmationSection) confirmationSection.style.display = 'none';
+                const textarea = document.getElementById('mood-note');
+                if (textarea) setTimeout(() => textarea.focus(), 50);
+            }
+
+            async function saveMood() {
+                if (!selectedMood || isSaving) return;
+                isSaving = true;
+                const saveBtn = document.getElementById('save-mood-btn');
+                const noteEl = document.getElementById('mood-note');
+                const note = noteEl ? noteEl.value.trim() : '';
+                if (typeof MoodState !== 'undefined') {
+                    MoodState.currentNote = note;
+                }
+                if (saveBtn) {
+                    saveBtn.disabled = true;
+                    saveBtn.textContent = '⏳ Saving...';
+                }
+                try {
+                    const response = await fetch('/api/mood/entries', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ mood: selectedMood, note: note || null })
+                    });
+                    if (!response.ok) {
+                        const err = await response.json().catch(() => ({}));
+                        throw new Error(err.error || 'Failed to save mood');
+                    }
+                    const data = await response.json();
+                    const confirmationSection = document.getElementById('confirmation-section');
+                    const confirmationMessage = document.getElementById('confirmation-message');
+                    const moodTimestamp = document.getElementById('mood-timestamp');
+                    if (confirmationMessage) {
+                        confirmationMessage.textContent = note
+                            ? '✓ Mood saved with note'
+                            : '✓ Your mood has been saved';
+                    }
+                    if (moodTimestamp && data.timestamp) {
+                        const t = new Date(data.timestamp);
+                        moodTimestamp.textContent = t.toLocaleTimeString('en-US', {
+                            hour: 'numeric', minute: '2-digit', hour12: true
+                        });
+                    }
+                    if (confirmationSection) confirmationSection.style.display = 'block';
+                    if (typeof loadMoodHistory === 'function') {
+                        try { await loadMoodHistory(); } catch (e) {}
+                    }
+                    if (typeof loadTodaysMood === 'function') {
+                        try { await loadTodaysMood(); } catch (e) {}
+                    }
+                } catch (error) {
+                    alert(error.message || 'Could not save mood');
+                } finally {
+                    isSaving = false;
+                    if (saveBtn) {
+                        saveBtn.disabled = false;
+                        saveBtn.textContent = '✓ Save Mood';
+                    }
+                }
+            }
+
+            function setupMoodUi() {
+                window.__moodUiBound = true;
+                document.querySelectorAll('.mood-button').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        setSelectedMood(this.dataset.mood);
+                    });
+                });
+                const saveBtn = document.getElementById('save-mood-btn');
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        saveMood();
+                    });
+                }
+                const clearBtn = document.getElementById('clear-mood-btn');
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        selectedMood = null;
+                        if (typeof MoodState !== 'undefined') {
+                            MoodState.currentMood = null;
+                            MoodState.currentNote = '';
+                        }
+                        document.querySelectorAll('.mood-button').forEach(b => b.classList.remove('selected'));
+                        const noteEl = document.getElementById('mood-note');
+                        if (noteEl) noteEl.value = '';
+                        const noteSection = document.getElementById('note-section');
+                        const submitSection = document.getElementById('submit-section');
+                        if (noteSection) noteSection.style.display = 'none';
+                        if (submitSection) submitSection.style.display = 'none';
+                    });
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', setupMoodUi);
+            } else {
+                setupMoodUi();
+            }
+        })();
+    </script>
+
+    <!-- Optional Note Section (Hidden until mood selected) -->
+    <div class="row mb-4" id="note-section" style="display: none; animation: slideDown 0.3s ease;">
+        <div class="col-md-8 mx-auto">
+            <div class="form-group">
+                <label for="mood-note" class="form-label" data-i18n-key="mood_note_label">📝 Add a note (optional)</label>
+                <textarea 
+                    class="form-control form-control-lg" 
+                    id="mood-note" 
+                    rows="4"
+                    placeholder="What happened today?"
+                    data-i18n-placeholder="mood_note_placeholder"
+                    autofocus>
+                </textarea>
+                <small class="form-text text-muted d-block mt-2" data-i18n-key="mood_note_hint">
+                    Share what made you feel this way
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Button (Hidden until mood selected) -->
+    <div class="row mb-5" id="submit-section" style="display: none; animation: slideUp 0.3s ease;">
+        <div class="col-md-8 mx-auto text-center">
+            <button type="button" class="btn btn-success btn-lg fw-bold" id="save-mood-btn" style="min-width: 200px;">
+                ✓ Save Mood
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-lg" id="clear-mood-btn" style="min-width: 200px; margin-left: 10px;">
+                ↺ Change Mood
+            </button>
+        </div>
+    </div>
+
+    <!-- Confirmation Message (Hidden until submit) -->
+    <div class="row mb-5" id="confirmation-section" style="display: none;">
+        <div class="col-md-8 mx-auto">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong id="confirmation-message" data-i18n-key="mood_saved">✓ Your mood has been saved</strong>
+                <span id="mood-timestamp" class="ms-2 text-muted fw-bold"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    <!-- Mood Today Display -->
+    <div class="row mb-5" id="todays-mood-section" style="display: none;">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title" data-i18n-key="mood_today_label">Today</h5>
+                    <div class="mood-display" id="mood-display" style="font-size: 3em; margin: 20px 0;">
+                        😐
+                    </div>
+                    <p id="mood-value" class="text-muted mb-0"></p>
+                    <p id="mood-time" class="text-muted small mt-2"></p>
+                    <p id="mood-note-display" class="mt-3 fst-italic"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mood History Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="mb-4" data-i18n-key="mood_history_title">Your Mood This Week</h2>
+            <div id="mood-history" class="mood-timeline">
+                <!-- Populated by JavaScript -->
+            </div>
+            <div id="no-history-message" class="alert alert-info" data-i18n-key="mood_no_history" style="display: none;">
+                No mood records yet
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="row mt-5 mb-5">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('users.patient_home') }}" class="btn btn-secondary btn-lg" data-i18n-key="btn_back_to_home">
+                Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/mood.js') }}"></script>
+<script>
+    // Ensure mood page is initialized
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🎭 Mood page initializing...');
+            if (typeof initMoodPage === 'function') {
+                initMoodPage();
+            } else {
+                console.error('initMoodPage function not found');
+            }
+        });
+    } else {
+        console.log('🎭 Mood page initializing (DOM already loaded)...');
+        if (typeof initMoodPage === 'function') {
+            initMoodPage();
+        }
+    }
+</script>
+{% endblock %}

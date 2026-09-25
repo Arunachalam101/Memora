@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Memora{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="welcome-card">
+        <h1>Welcome back, {{ user.name }}! 👋</h1>
+        <p class="subtitle" data-i18n-key="patient_home_subtitle">Let's work on keeping your mind sharp today.</p>
+    </div>
+    
+    <!-- ============================================================
+         VOICE ASSISTANT SECTION
+         ============================================================ -->
+    <div class="voice-assistant-section">
+        <h2 data-i18n-key="voice_assistant_title">🎤 Voice Assistant</h2>
+        
+        <div class="voice-buttons-container">
+            <button id="voice-ask-button" class="btn btn-voice btn-ask" onclick="VoiceAPI.listenForQuery()" data-i18n-key="voice_ask_memora">
+                🎤 Ask Memora
+            </button>
+            
+            <button id="voice-read-button" class="btn btn-voice btn-read" onclick="VoiceAPI.speak(getRemindersGreeting())" data-i18n-key="voice_read_reminders">
+                🔊 Read my reminders
+            </button>
+        </div>
+        
+        <div id="voice-status" class="voice-status"></div>
+        
+        <p class="voice-hint" data-i18n-key="voice_hint">💡 Tap "Ask Memora" to ask about the time, date, or your reminders. Tap "Read my reminders" to hear them aloud.</p>
+    </div>
+    
+    <div class="reminders-section">
+        <h2 data-i18n-key="reminders_section_title">📋 Today's Reminders</h2>
+        <div id="reminders-container" class="reminders-list">
+            <p class="loading" data-i18n-key="reminders_loading">Loading reminders...</p>
+        </div>
+    </div>
+    
+    <div class="placeholder-section">
+        <h2 data-i18n-key="games_section_title">🎮 Games</h2>
+        <p data-i18n-key="games_section_subtitle">Cognitive games to boost your memory and attention will be available soon.</p>
+        <a href="{{ url_for('users.games') }}" class="btn btn-secondary" data-i18n-key="btn_go_to_games">Go to Games</a>
+    </div>
+
+    <!-- ============================================================
+         MEMORY SECTION (Phase 10A & 10C)
+         ============================================================ -->
+    <div class="placeholder-section">
+        <h2>📚 Memory</h2>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <a href="{{ url_for('users.memory_album') }}" class="btn btn-secondary" data-i18n-key="nav_memory_album">📖 Memory Album</a>
+            <a href="{{ url_for('users.memory_rescue') }}" class="btn btn-secondary" data-i18n-key="nav_memory_rescue">🆘 Memory Rescue</a>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MOOD TRACKER SECTION (Phase 10D)
+         ============================================================ -->
+    <div class="placeholder-section">
+        <h2 data-i18n-key="mood_title">🎭 Mood Tracker</h2>
+        <p data-i18n-key="mood_section_subtitle">Record how you're feeling today</p>
+        <a href="{{ url_for('users.mood') }}" class="btn btn-secondary" data-i18n-key="btn_check_mood">Check Your Mood</a>
+    </div>
+
+    <!-- ============================================================
+         SAFETY SECTION (Phase 10E)
+         ============================================================ -->
+    <div class="placeholder-section">
+        <h2 data-i18n-key="safety_title">🛡️ Safety</h2>
+        <p data-i18n-key="safety_section_subtitle">Check your safety status</p>
+        <a href="{{ url_for('users.safety') }}" class="btn btn-secondary" data-i18n-key="btn_check_safety">Check Safety Status</a>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/voice_assistant.js') }}"></script>
+<script src="{{ url_for('static', filename='js/reminders.js') }}"></script>
+
+<script>
+    // Auto-read reminders on page load (with fallback for autoplay policy)
+    document.addEventListener('DOMContentLoaded', () => {
+        // Give reminders time to load, then try to speak
+        setTimeout(() => {
+            VoiceAPI.speakRemindersGreeting();
+        }, 1000);
+    });
+    
+    // Helper to build reminders greeting for manual read button
+    function getRemindersGreeting() {
+        let greeting = '';
+        
+        if (!window.VoiceAPI || !window.VoiceAPI.isSupported || !window.VoiceAPI.isSupported()) {
+            return 'Voice is not supported in this browser.';
+        }
+        
+        const reminders = document.querySelectorAll('.reminder-card');
+        
+        if (reminders.length === 0) {
+            greeting = 'You have no reminders today.';
+        } else if (reminders.length === 1) {
+            const reminderText = reminders[0].querySelector('.reminder-title').textContent;
+            const reminderTime = reminders[0].querySelector('.reminder-time').textContent;
+            greeting = `You have 1 reminder: ${reminderText} at ${reminderTime}.`;
+        } else {
+            greeting = `You have ${reminders.length} reminders: `;
+            const reminderTexts = Array.from(reminders).map(r => {
+                const title = r.querySelector('.reminder-title').textContent;
+                const time = r.querySelector('.reminder-time').textContent.replace('🕐 ', '');
+                return `${title} at ${time}`;
+            });
+            greeting += reminderTexts.join(', ') + '.';
+        }
+        
+        return greeting;
+    }
+</script>
+{% endblock %}

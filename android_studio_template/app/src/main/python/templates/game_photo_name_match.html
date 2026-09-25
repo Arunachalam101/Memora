@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Photo / Name Match - Memora{% endblock %}
+
+{% block content %}
+<div class="container game-container">
+    <div class="game-header">
+        <h1 data-i18n-key="game_photo_name_match_heading">📸 Photo / Name Match</h1>
+        <div class="difficulty-badge" id="difficulty-badge" data-i18n-key="difficulty_loading">🟡 Loading...</div>
+        <div class="game-stats">
+            <div class="stat">
+                <span class="stat-label" data-i18n-key="question_label">Question:</span>
+                <span class="stat-value" id="question-count">1/5</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label" data-i18n-key="stat_correct">Correct:</span>
+                <span class="stat-value" id="correct-count">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label" data-i18n-key="stat_time">Time:</span>
+                <span class="stat-value" id="time-count">0:00</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Error/Loading State -->
+    <div id="error-state" class="game-message" style="display: none;">
+        <div class="message-card">
+            <h2 id="error-title" data-i18n-key="game_not_started">Could not start game</h2>
+            <p id="error-message"></p>
+            <button class="btn btn-primary" onclick="window.location.href='/games'" data-i18n-key="btn_back_to_games">Back to Games</button>
+        </div>
+    </div>
+    
+    <!-- Game State -->
+    <div id="game-state" style="display: none;">
+        <!-- Photo Display -->
+        <div class="game-photo-display">
+            <img id="question-photo" src="" alt="Person photo" class="question-photo" />
+        </div>
+        
+        <!-- Question Text -->
+        <div class="game-question">
+            <p data-i18n-key="select_name">Who is this person?</p>
+        </div>
+        
+        <!-- Answer Options (Buttons) -->
+        <div class="game-options" id="game-options">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+    
+    <!-- Completion Screen -->
+    <div id="completion-screen" class="completion-screen" style="display: none;">
+        <div class="completion-card">
+            <h2 data-i18n-key="completion_well_done">🎉 Well Done!</h2>
+            <div class="score-display">
+                <div class="score-item">
+                    <span class="score-label" data-i18n-key="score_label">Score</span>
+                    <span class="score-value" id="final-score">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label" data-i18n-key="accuracy_label">Accuracy</span>
+                    <span class="score-value" id="final-accuracy">0%</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label" data-i18n-key="stat_correct">Correct</span>
+                    <span class="score-value" id="final-correct">0/5</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label" data-i18n-key="stat_time">Time</span>
+                    <span class="score-value" id="final-time">0:00</span>
+                </div>
+            </div>
+            <div class="completion-buttons">
+                <button class="btn btn-primary" onclick="location.reload()" data-i18n-key="btn_play_again">Play Again</button>
+                <button class="btn btn-secondary" onclick="window.location.href='/games'" data-i18n-key="btn_back_to_games">Back to Games</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const USER_ID = {{ session.get('user_id', 'null') }};
+</script>
+<script src="{{ url_for('static', filename='js/photo_name_match.js') }}"></script>
+{% endblock %}

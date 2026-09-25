@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}Memory Album - MEMORA{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            
+            <!-- PAGE HEADER -->
+            <div class="mb-4">
+                <h1 data-i18n-key="memory_album">Memory Album</h1>
+                <p class="text-muted" data-i18n-key="memory_album_subtitle">Personalized information about important people, places, and memories</p>
+            </div>
+            
+            <!-- CAREGIVER SECTION: Patient Selector -->
+            <div id="caregiver-section" class="mb-4" style="display: none;">
+                <label for="patient-select" data-i18n-key="select_patient">Select Patient:</label>
+                <select id="patient-select" class="form-select">
+                    <option value="">-- Loading patients --</option>
+                </select>
+            </div>
+            
+            <!-- TAB NAVIGATION -->
+            <div class="mb-4">
+                <div class="btn-group" role="tablist">
+                    <button class="btn btn-primary active" data-tab="people" data-i18n-key="tab_people">People</button>
+                    <button class="btn btn-primary" data-tab="places" data-i18n-key="tab_places">Places</button>
+                    <button class="btn btn-primary" data-tab="memories" data-i18n-key="tab_memories">Memories</button>
+                </div>
+            </div>
+            
+            <!-- ERROR ALERTS (hidden by default) -->
+            <div id="error-container"></div>
+            
+            <!-- PEOPLE SECTION -->
+            <div id="people-section" class="tab-content">
+                <div class="mb-3">
+                    <button id="add-person-btn" class="btn btn-success" data-i18n-key="add_person" style="display: none;">Add Person</button>
+                </div>
+                <div id="people-grid" class="row g-3">
+                    <!-- Dynamically populated -->
+                </div>
+                <div id="no-people" class="alert alert-info text-center" data-i18n-key="no_people">No people added yet</div>
+            </div>
+            
+            <!-- PLACES SECTION -->
+            <div id="places-section" class="tab-content" style="display: none;">
+                <div class="mb-3">
+                    <button id="add-place-btn" class="btn btn-success" data-i18n-key="add_place" style="display: none;">Add Place</button>
+                </div>
+                <div id="places-grid" class="row g-3">
+                    <!-- Dynamically populated -->
+                </div>
+                <div id="no-places" class="alert alert-info text-center" data-i18n-key="no_places">No places added yet</div>
+            </div>
+            
+            <!-- MEMORIES SECTION -->
+            <div id="memories-section" class="tab-content" style="display: none;">
+                <div class="mb-3">
+                    <button id="add-memory-btn" class="btn btn-success" data-i18n-key="add_memory" style="display: none;">Add Memory</button>
+                </div>
+                <div id="memories-grid" class="row g-3">
+                    <!-- Dynamically populated -->
+                </div>
+                <div id="no-memories" class="alert alert-info text-center" data-i18n-key="no_memories">No memories added yet</div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+
+<!-- ========================================
+     MODALS
+     ======================================== -->
+
+<!-- PERSON FORM MODAL -->
+<div class="modal fade" id="personModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="personModalTitle" data-i18n-key="add_person">Add Person</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="personForm">
+                    <div class="mb-3">
+                        <label for="person-name" class="form-label" data-i18n-key="person_name">Name:</label>
+                        <input type="text" class="form-control" id="person-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="person-relationship" class="form-label" data-i18n-key="person_relationship">Relationship:</label>
+                        <input type="text" class="form-control" id="person-relationship" placeholder="e.g., Son, Mother, Brother" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="person-description" class="form-label" data-i18n-key="person_description">Description:</label>
+                        <textarea class="form-control" id="person-description" rows="3" placeholder="e.g., Lives in Delhi, likes gardening"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="person-photo" class="form-label" data-i18n-key="person_photo">Photo:</label>
+                        <input type="file" class="form-control" id="person-photo" accept="image/*">
+                        <small class="form-text text-muted" data-i18n-key="photo_requirements">JPG, PNG, GIF, or WebP. Max 5MB</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n-key="cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-person-btn" data-i18n-key="save">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- PLACE FORM MODAL -->
+<div class="modal fade" id="placeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="placeModalTitle" data-i18n-key="add_place">Add Place</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="placeForm">
+                    <div class="mb-3">
+                        <label for="place-name" class="form-label" data-i18n-key="place_name">Place Name:</label>
+                        <input type="text" class="form-control" id="place-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="place-description" class="form-label" data-i18n-key="place_description">Description:</label>
+                        <textarea class="form-control" id="place-description" rows="3" placeholder="e.g., Address, memories, special details"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="place-photo" class="form-label" data-i18n-key="place_photo">Photo:</label>
+                        <input type="file" class="form-control" id="place-photo" accept="image/*">
+                        <small class="form-text text-muted" data-i18n-key="photo_requirements">JPG, PNG, GIF, or WebP. Max 5MB</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n-key="cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-place-btn" data-i18n-key="save">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- MEMORY FORM MODAL -->
+<div class="modal fade" id="memoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="memoryModalTitle" data-i18n-key="add_memory">Add Memory</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="memoryForm">
+                    <div class="mb-3">
+                        <label for="memory-title" class="form-label" data-i18n-key="memory_title">Title:</label>
+                        <input type="text" class="form-control" id="memory-title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="memory-description" class="form-label" data-i18n-key="memory_description">Description:</label>
+                        <textarea class="form-control" id="memory-description" rows="3" placeholder="Share the memory..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="memory-date" class="form-label" data-i18n-key="memory_date">Date (Optional):</label>
+                        <input type="date" class="form-control" id="memory-date">
+                    </div>
+                    <div class="mb-3">
+                        <label for="memory-photo" class="form-label" data-i18n-key="memory_photo">Photo:</label>
+                        <input type="file" class="form-control" id="memory-photo" accept="image/*">
+                        <small class="form-text text-muted" data-i18n-key="photo_requirements">JPG, PNG, GIF, or WebP. Max 5MB</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n-key="cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-memory-btn" data-i18n-key="save">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ========================================
+     EDIT MODALS (Similar structure for editing)
+     ======================================== -->
+
+<!-- EDIT PERSON MODAL -->
+<div class="modal fade" id="editPersonModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" data-i18n-key="edit_person">Edit Person</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editPersonForm">
+                    <input type="hidden" id="edit-person-id">
+                    <div class="mb-3">
+                        <label for="edit-person-name" class="form-label" data-i18n-key="person_name">Name:</label>
+                        <input type="text" class="form-control" id="edit-person-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-person-relationship" class="form-label" data-i18n-key="person_relationship">Relationship:</label>
+                        <input type="text" class="form-control" id="edit-person-relationship" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-person-description" class="form-label" data-i18n-key="person_description">Description:</label>
+                        <textarea class="form-control" id="edit-person-description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-person-photo" class="form-label" data-i18n-key="person_photo">Photo:</label>
+                        <input type="file" class="form-control" id="edit-person-photo" accept="image/*">
+                        <small class="form-text text-muted" data-i18n-key="photo_requirements">JPG, PNG, GIF, or WebP. Max 5MB</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n-key="cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-edit-person-btn" data-i18n-key="save">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- EDIT PLACE MODAL -->
+<div class="modal fade" id="editPlaceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" data-i18n-key="edit_place">Edit Place</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editPlaceForm">
+                    <input type="hidden" id="edit-place-id">
+                    <div class="mb-3">
+                        <label for="edit-place-name" class="form-label" data-i18n-key="place_name">Place Name:</label>
+                        <input type="text" class="form-control" id="edit-place-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-place-description" class="form-label" data-i18n-key="place_description">Description:</label>
+                        <textarea class="form-control" id="edit-place-description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-place-photo" class="form-label" data-i18n-key="place_photo">Photo:</label>
+                        <input type="file" class="form-control" id="edit-place-photo" accept="image/*">
+                        <small class="form-text text-muted" data-i18n-key="photo_requirements">JPG, PNG, GIF, or WebP. Max 5MB</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n-key="cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-edit-place-btn" data-i18n-key="save">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- EDIT MEMORY MODAL -->
+<div class="modal fade" id="editMemoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" data-i18n-key="edit_memory">Edit Memory</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editMemoryForm">
+                    <input type="hidden" id="edit-memory-id">
+                    <div class="mb-3">
+                        <label for="edit-memory-title" class="form-label" data-i18n-key="memory_title">Title:</label>
+                        <input type="text" class="form-control" id="edit-memory-title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-memory-description" class="form-label" data-i18n-key="memory_description">Description:</label>
+                        <textarea class="form-control" id="edit-memory-description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-memory-date" class="form-label" data-i18n-key="memory_date">Date (Optional):</label>
+                        <input type="date" class="form-control" id="edit-memory-date">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-memory-photo" class="form-label" data-i18n-key="memory_photo">Photo:</label>
+                        <input type="file" class="form-control" id="edit-memory-photo" accept="image/*">
+                        <small class="form-text text-muted" data-i18n-key="photo_requirements">JPG, PNG, GIF, or WebP. Max 5MB</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n-key="cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-edit-memory-btn" data-i18n-key="save">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="{{ url_for('static', filename='js/memory_album.js') }}"></script>
+{% endblock %}

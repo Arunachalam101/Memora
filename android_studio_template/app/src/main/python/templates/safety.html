@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Safety - Memora{% endblock %}
+
+{% block content %}
+<div class="container safety-page">
+    <div class="page-header">
+        <h1 data-i18n-key="safety_title">🛡️ Safety</h1>
+    </div>
+    
+    <!-- Safety Status Card -->
+    <div class="safety-status-card">
+        <div id="safety-icon" class="safety-icon">🛡️</div>
+        <div id="safety-text" class="safety-text">
+            <h2 id="safety-status-label" data-i18n-key="safety_status_safe">SAFE</h2>
+            <p id="safety-status-detail" data-i18n-key="safety_no_active_alerts">No active alerts</p>
+        </div>
+    </div>
+    
+    <!-- Emergency Button -->
+    <div class="emergency-button-container">
+        <button id="sos-button" class="btn btn-emergency" data-i18n-key="btn_emergency">
+            🆘 EMERGENCY
+        </button>
+        <p class="emergency-hint" data-i18n-key="safety_emergency_hint">Tap if you need immediate help</p>
+    </div>
+    
+    <script>
+        // Inline SOS button handler
+        (function() {
+            const setupSOS = () => {
+                const sosButton = document.getElementById('sos-button');
+                if (sosButton) {
+                    sosButton.addEventListener('click', async function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Confirm action
+                        if (!confirm('Are you sure you need emergency help?')) {
+                            return;
+                        }
+                        
+                        // Disable button
+                        this.disabled = true;
+                        this.textContent = '⏳ Sending Alert...';
+                        
+                        try {
+                            // Send SOS to server
+                            const response = await fetch('/api/safety/sos', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                credentials: 'include'
+                            });
+                            
+                            if (response.ok) {
+                                // Show success message
+                                const successMessage = document.getElementById('success-message');
+                                if (successMessage) {
+                                    successMessage.style.display = 'block';
+                                }
+                                
+                                // Change button to green
+                                this.style.backgroundColor = '#28a745';
+                                this.textContent = '✓ Alert Sent!';
+                                
+                                // Load safety status
+                                const statusResponse = await fetch('/api/safety/status', {
+                                    credentials: 'include'
+                                });
+                                if (statusResponse.ok) {
+                                    const data = await statusResponse.json();
+                                    const statusLabel = document.getElementById('safety-status-label');
+                                    const statusDetail = document.getElementById('safety-status-detail');
+                                    const statusCard = document.querySelector('.safety-status-card');
+                                    
+                                    if (data.status === 'alert') {
+                                        statusLabel.textContent = 'ALERT ACTIVE';
+                                        statusDetail.textContent = 'Emergency help is on the way';
+                                        if (statusCard) statusCard.classList.add('alert-active');
+                                    }
+                                }
+                                
+                                // Reset button after 3 seconds
+                                setTimeout(() => {
+                                    this.disabled = false;
+                                    this.style.backgroundColor = '';
+                                    this.textContent = '🆘 EMERGENCY';
+                                }, 3000);
+                            } else {
+                                alert('Error sending alert. Please try again.');
+                                this.disabled = false;
+                                this.textContent = '🆘 EMERGENCY';
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('Error: ' + error.message);
+                            this.disabled = false;
+                            this.textContent = '🆘 EMERGENCY';
+                        }
+                    });
+                }
+            };
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', setupSOS);
+            } else {
+                setupSOS();
+            }
+        })();
+    </script>
+    
+    <!-- Success Message (hidden by default) -->
+    <div id="success-message" class="alert alert-success" style="display: none;">
+        <p id="success-text" data-i18n-key="safety_caregiver_alerted">Your caregiver has been alerted.</p>
+    </div>
+    
+    <!-- Navigation -->
+    <div class="navigation-buttons">
+        <a href="{{ url_for('users.patient_home') }}" class="btn btn-secondary" data-i18n-key="btn_back_to_home">← Back to Home</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/safety.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        SafetyUI.initSafetyPage();
+    });
+</script>
+{% endblock %}
